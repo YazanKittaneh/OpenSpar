@@ -31,8 +31,23 @@ export async function POST(req: NextRequest) {
     });
 
     const debate = await convex.query(api.debates.getDebate, { id: id as never });
+    if (debate) {
+      void convex.action(api.debateEngine.startDebate, {
+        debateId: id as never,
+      });
+    }
 
-    return NextResponse.json({ debate }, { status: 201 });
+    return NextResponse.json(
+      {
+        debate: debate
+          ? {
+              ...debate,
+              id: debate._id,
+            }
+          : null,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error("Error creating debate:", error);
     return NextResponse.json({ error: "Failed to create debate" }, { status: 500 });

@@ -61,26 +61,49 @@ export const runDebateTurn = action({
       payload: JSON.stringify({ speaker, turnNumber }),
     });
 
-    const stream = streamDebateResponse(
-      speaker,
-      debater,
-      debate.topic,
-      mappedTurns,
-      opponent.objective,
-    );
+    try {
+      const stream = streamDebateResponse(
+        speaker,
+        debater,
+        debate.topic,
+        mappedTurns,
+        opponent.objective,
+      );
 
-    while (true) {
-      const next = await stream.next();
-      if (next.done) {
-        result = next.value;
-        break;
+      while (true) {
+        const next = await stream.next();
+        if (next.done) {
+          result = next.value;
+          break;
+        }
+        streamedContent += next.value;
+        await ctx.runMutation(api.events.appendEvent, {
+          debateId: args.debateId,
+          type: "token",
+          payload: JSON.stringify({ speaker, content: next.value }),
+        });
       }
-      streamedContent += next.value;
+    } catch (error) {
       await ctx.runMutation(api.events.appendEvent, {
         debateId: args.debateId,
-        type: "token",
-        payload: JSON.stringify({ speaker, content: next.value }),
+        type: "error",
+        payload: JSON.stringify({
+          message:
+            error instanceof Error
+              ? error.message
+              : "LLM call failed. Skipping turn.",
+          speaker,
+        }),
       });
+
+      await ctx.runMutation(api.debates.updateDebate, {
+        id: args.debateId,
+        updates: {
+          currentSpeaker: speaker === "A" ? "B" : "A",
+        },
+      });
+
+      return true;
     }
 
     const finalContent = result.content || streamedContent;

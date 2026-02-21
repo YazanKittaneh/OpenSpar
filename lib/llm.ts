@@ -1,17 +1,18 @@
 import OpenAI from "openai";
 
+import { getOpenRouterEnv } from "@/lib/env";
 import { DebaterConfig, Speaker, Turn } from "@/lib/types";
 
 const REQUEST_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 2;
 
 function getClient() {
+  const env = getOpenRouterEnv();
   return new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
-    apiKey: process.env.OPENROUTER_API_KEY,
+    apiKey: env.OPENROUTER_API_KEY,
     defaultHeaders: {
-      "HTTP-Referer":
-        process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+      "HTTP-Referer": env.NEXT_PUBLIC_APP_URL,
       "X-Title": "LLM Debate Arena",
     },
   });

@@ -1,8 +1,8 @@
 import { ConvexHttpClient } from "convex/browser";
 
-import { getServerEnv } from "@/lib/env";
+import { getConvexEnv } from "@/lib/env";
 
 export function getConvexHttpClient() {
-  const env = getServerEnv();
+  const env = getConvexEnv();
   return new ConvexHttpClient(env.NEXT_PUBLIC_CONVEX_URL);
 }

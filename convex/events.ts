@@ -1,6 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
+function createSequence() {
+  return Date.now() * 1000 + Math.floor(Math.random() * 1000);
+}
+
 export const appendEvent = mutation({
   args: {
     debateId: v.id("debates"),
@@ -8,17 +12,9 @@ export const appendEvent = mutation({
     payload: v.string(),
   },
   handler: async (ctx, args) => {
-    const latest = await ctx.db
-      .query("debateEvents")
-      .withIndex("by_debateId_sequence", (q) => q.eq("debateId", args.debateId))
-      .order("desc")
-      .first();
-
-    const nextSequence = latest ? latest.sequence + 1 : 1;
-
     return ctx.db.insert("debateEvents", {
       debateId: args.debateId,
-      sequence: nextSequence,
+      sequence: createSequence(),
       type: args.type,
       payload: args.payload,
       createdAt: Date.now(),

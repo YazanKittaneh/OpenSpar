@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { api } from "@/convex/_generated/api";
 import { getConvexHttpClient } from "@/lib/convex";
+import { isConvexIdError } from "@/lib/errors";
 
 const validActions = ["pause", "resume", "skip", "inject"] as const;
 
@@ -28,13 +29,20 @@ export async function POST(
     }
 
     if (action.type === "resume") {
-      await convex.action(api.debateEngine.startDebate, {
-        debateId: id as never,
-      });
+      void convex
+        .action(api.debateEngine.startDebate, {
+          debateId: id as never,
+        })
+        .catch((error) => {
+          console.error("Failed to resume debate:", error);
+        });
     }
 
     return NextResponse.json({ success: true, action }, { status: 200 });
   } catch (error) {
+    if (isConvexIdError(error)) {
+      return NextResponse.json({ error: "Invalid debate id" }, { status: 400 });
+    }
     console.error("Action error:", error);
     return NextResponse.json({ error: "Failed to process action" }, { status: 500 });
   }

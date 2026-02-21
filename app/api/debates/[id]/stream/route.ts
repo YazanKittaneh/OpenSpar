@@ -12,6 +12,7 @@ export async function GET(
 
   let closed = false;
   let lastSequence = 0;
+  let completionSent = false;
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -43,15 +44,20 @@ export async function GET(
               const payload = JSON.parse(event.payload);
               send({ type: event.type, ...payload });
               lastSequence = Math.max(lastSequence, event.sequence);
+              if (event.type === "debate.completed") {
+                completionSent = true;
+              }
             }
           }
 
           if (debate.status === "completed" || debate.status === "aborted") {
-            send({
-              type: "debate.completed",
-              winner: debate.winner ?? null,
-              reason: debate.status === "aborted" ? "Debate aborted" : "Debate completed",
-            });
+            if (!completionSent) {
+              send({
+                type: "debate.completed",
+                winner: debate.winner ?? null,
+                reason: debate.status === "aborted" ? "Debate aborted" : "Debate completed",
+              });
+            }
             break;
           }
         } catch {
