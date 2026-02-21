@@ -1,0 +1,1029 @@
+CTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversation Flow & Joint Reasoning</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Neo-Swiss Palette */
+    --bg-primary: #F5F3EE;
+    --bg-surface: #FFFFFF;
+    --bg-inset: #EDEAE4;
+    --text-primary: #0A0A0A;
+    --text-secondary: #0A0A0A;
+    --text-muted: rgba(10, 10, 10, 0.4);
+    --text-label: rgba(10, 10, 10, 0.55);
+    --border: #0A0A0A;
+    --border-light: rgba(10, 10, 10, 0.12);
+    --signal-orange: #E8590C;
+    --signal-orange-light: rgba(232, 89, 12, 0.08);
+    --accent-blue: #1971C2;
+    --accent-blue-light: rgba(25, 113, 194, 0.08);
+    --accent-green: #2B8A3E;
+    --accent-green-light: rgba(43, 138, 62, 0.06);
+    --inactive: rgba(10, 10, 10, 0.4);
+
+```
+/* Spacing - 8px grid */
+--sp-1: 8px;
+--sp-2: 16px;
+--sp-3: 24px;
+--sp-4: 32px;
+--sp-6: 48px;
+--sp-8: 64px;
+
+/* Typography */
+--font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+--font-sans: 'IBM Plex Sans', 'Helvetica Neue', sans-serif;
+```
+
+}
+
+- {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  }
+
+body {
+font-family: var(–font-sans);
+background: var(–bg-primary);
+color: var(–text-primary);
+min-height: 100vh;
+-webkit-font-smoothing: antialiased;
+}
+
+/* === LAYOUT === */
+.dashboard {
+max-width: 1440px;
+margin: 0 auto;
+padding: var(–sp-6) var(–sp-4);
+}
+
+.header {
+display: flex;
+justify-content: space-between;
+align-items: flex-end;
+margin-bottom: var(–sp-8);
+padding-bottom: var(–sp-3);
+border-bottom: 1px solid var(–border);
+}
+
+.header h1 {
+font-family: var(–font-sans);
+font-weight: 700;
+font-size: 40px;
+line-height: 1.1;
+letter-spacing: -0.02em;
+color: var(–text-primary);
+}
+
+.header-meta {
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–text-muted);
+text-align: right;
+line-height: 1.6;
+}
+
+.grid-main {
+display: grid;
+grid-template-columns: 320px 1fr 300px;
+gap: var(–sp-4);
+align-items: start;
+}
+
+/* === LABELS (Monospace Technical) === */
+.label {
+font-family: var(–font-mono);
+font-size: 10px;
+font-weight: 500;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–text-label);
+margin-bottom: var(–sp-1);
+}
+
+.section-title {
+font-family: var(–font-sans);
+font-weight: 700;
+font-size: 18px;
+line-height: 1.1;
+margin-bottom: var(–sp-2);
+color: var(–text-primary);
+}
+
+/* === CARDS === */
+.card {
+background: var(–bg-surface);
+border: 1px solid var(–border-light);
+border-radius: 2px;
+padding: var(–sp-3);
+margin-bottom: var(–sp-2);
+}
+
+.card–active {
+border-color: var(–border);
+border-width: 1px;
+}
+
+.card–inset {
+background: var(–bg-inset);
+border: none;
+}
+
+/* === LLM PANELS (Left Column) === */
+.llm-panels {
+display: flex;
+flex-direction: column;
+gap: var(–sp-2);
+}
+
+.llm-card {
+background: var(–bg-surface);
+border: 1px solid var(–border-light);
+border-radius: 2px;
+padding: var(–sp-3);
+transition: border-color 0.15s ease;
+}
+
+.llm-card:hover {
+border-color: var(–border);
+}
+
+.llm-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: var(–sp-2);
+padding-bottom: var(–sp-1);
+border-bottom: 1px solid var(–border-light);
+}
+
+.llm-name {
+font-family: var(–font-sans);
+font-weight: 700;
+font-size: 14px;
+line-height: 1.1;
+}
+
+.llm-id {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+color: var(–text-muted);
+text-transform: uppercase;
+}
+
+.llm-query {
+font-family: var(–font-mono);
+font-size: 11px;
+color: var(–text-label);
+letter-spacing: 0.02em;
+margin-bottom: var(–sp-2);
+padding: var(–sp-1) 0;
+}
+
+.llm-response-label {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–signal-orange);
+font-weight: 600;
+margin-bottom: var(–sp-1);
+}
+
+.llm-response {
+font-family: var(–font-sans);
+font-size: 13px;
+line-height: 1.55;
+color: var(–text-secondary);
+}
+
+.llm-footer {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: var(–sp-2);
+padding-top: var(–sp-1);
+border-top: 1px solid var(–border-light);
+}
+
+.llm-footer-link {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–text-muted);
+cursor: pointer;
+transition: color 0.15s ease;
+text-decoration: none;
+background: none;
+border: none;
+}
+
+.llm-footer-link:hover {
+color: var(–text-primary);
+}
+
+/* === CONVERSATION PANEL (Center) === */
+.conversation-panel {
+background: var(–bg-surface);
+border: 1px solid var(–border);
+border-radius: 2px;
+display: flex;
+flex-direction: column;
+min-height: 620px;
+}
+
+.conversation-header {
+padding: var(–sp-3);
+border-bottom: 1px solid var(–border-light);
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.topic-tag {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–text-primary);
+font-weight: 600;
+}
+
+.topic-dot {
+width: 6px;
+height: 6px;
+border-radius: 0;
+background: var(–signal-orange);
+}
+
+.conversation-body {
+flex: 1;
+padding: var(–sp-3);
+overflow-y: auto;
+display: flex;
+flex-direction: column;
+gap: var(–sp-2);
+}
+
+/* Messages */
+.msg {
+max-width: 80%;
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.msg–user {
+align-self: flex-end;
+}
+
+.msg–llm {
+align-self: flex-start;
+}
+
+.msg-sender {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–text-muted);
+}
+
+.msg–user .msg-sender {
+text-align: right;
+}
+
+.msg-bubble {
+padding: var(–sp-1) var(–sp-2);
+font-family: var(–font-sans);
+font-size: 13px;
+line-height: 1.5;
+border-radius: 2px;
+}
+
+.msg–user .msg-bubble {
+background: var(–text-primary);
+color: var(–bg-surface);
+}
+
+.msg–llm .msg-bubble {
+background: var(–bg-inset);
+color: var(–text-primary);
+border: 1px solid var(–border-light);
+}
+
+.msg-meta {
+font-family: var(–font-mono);
+font-size: 9px;
+letter-spacing: 0.05em;
+color: var(–text-muted);
+text-transform: uppercase;
+}
+
+.msg–user .msg-meta {
+text-align: right;
+}
+
+/* Joint Reasoning Section */
+.joint-reasoning {
+border-top: 1px solid var(–border);
+padding: var(–sp-3);
+background: var(–signal-orange-light);
+}
+
+.joint-reasoning-label {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–signal-orange);
+font-weight: 600;
+margin-bottom: var(–sp-1);
+}
+
+.joint-reasoning-text {
+font-family: var(–font-sans);
+font-size: 13px;
+line-height: 1.55;
+color: var(–text-secondary);
+}
+
+/* === RIGHT COLUMN === */
+.right-column {
+display: flex;
+flex-direction: column;
+gap: var(–sp-4);
+}
+
+/* Reasoning Visualizer */
+.visualizer-container {
+background: var(–bg-surface);
+border: 1px solid var(–border-light);
+border-radius: 2px;
+padding: var(–sp-3);
+}
+
+.visualizer-canvas {
+width: 100%;
+height: 200px;
+background: var(–bg-inset);
+border-radius: 2px;
+margin-bottom: var(–sp-2);
+position: relative;
+overflow: hidden;
+}
+
+.visualizer-canvas canvas {
+width: 100%;
+height: 100%;
+}
+
+.legend {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: var(–sp-1);
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+gap: 6px;
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–text-label);
+}
+
+.legend-dot {
+width: 8px;
+height: 8px;
+border-radius: 0;
+flex-shrink: 0;
+}
+
+/* Confidence Scores */
+.confidence-container {
+background: var(–bg-surface);
+border: 1px solid var(–border-light);
+border-radius: 2px;
+padding: var(–sp-3);
+}
+
+.confidence-row {
+display: flex;
+align-items: center;
+gap: var(–sp-2);
+margin-bottom: var(–sp-2);
+}
+
+.confidence-row:last-child {
+margin-bottom: 0;
+}
+
+.confidence-label-text {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–text-label);
+width: 80px;
+flex-shrink: 0;
+}
+
+.confidence-bar-track {
+flex: 1;
+height: 8px;
+background: var(–bg-inset);
+border-radius: 0;
+overflow: hidden;
+}
+
+.confidence-bar-fill {
+height: 100%;
+border-radius: 0;
+transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.confidence-value {
+font-family: var(–font-mono);
+font-size: 12px;
+font-weight: 600;
+letter-spacing: 0.02em;
+width: 40px;
+text-align: right;
+flex-shrink: 0;
+}
+
+/* === CONTROLS === */
+.controls {
+display: flex;
+gap: var(–sp-2);
+margin-top: var(–sp-4);
+justify-content: flex-start;
+}
+
+.btn {
+font-family: var(–font-sans);
+font-weight: 700;
+font-size: 13px;
+letter-spacing: 0.02em;
+border: none;
+cursor: pointer;
+padding: 12px 24px;
+border-radius: 2px;
+transition: all 0.12s ease;
+text-transform: none;
+box-shadow: none;
+}
+
+.btn–primary {
+background: var(–text-primary);
+color: var(–bg-surface);
+}
+
+.btn–primary:hover {
+background: #2a2a2a;
+}
+
+.btn–primary:active {
+transform: translateY(1px);
+}
+
+.btn–secondary {
+background: transparent;
+color: var(–text-primary);
+border: 1px solid var(–border);
+}
+
+.btn–secondary:hover {
+background: var(–bg-inset);
+}
+
+.btn–tertiary {
+background: transparent;
+color: var(–text-muted);
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+font-weight: 500;
+padding: 12px 16px;
+border: none;
+}
+
+.btn–tertiary:hover {
+color: var(–text-primary);
+}
+
+.btn–tertiary::before {
+content: ’+ ’;
+}
+
+.btn–signal {
+background: var(–signal-orange);
+color: white;
+}
+
+.btn–signal:hover {
+background: #d14b08;
+}
+
+/* === SEGMENTED TOGGLE === */
+.toggle-segment {
+display: inline-flex;
+border: 1px solid var(–border);
+border-radius: 2px;
+overflow: hidden;
+}
+
+.toggle-option {
+font-family: var(–font-mono);
+font-size: 11px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+padding: 8px 16px;
+cursor: pointer;
+transition: all 0.12s ease;
+background: transparent;
+color: var(–text-muted);
+border: none;
+border-right: 1px solid var(–border);
+}
+
+.toggle-option:last-child {
+border-right: none;
+}
+
+.toggle-option–active {
+background: var(–text-primary);
+color: var(–bg-surface);
+}
+
+/* === STATUS INDICATOR === */
+.status-row {
+display: flex;
+align-items: center;
+gap: var(–sp-1);
+margin-bottom: var(–sp-2);
+}
+
+.status-indicator {
+width: 6px;
+height: 6px;
+background: var(–accent-green);
+border-radius: 0;
+animation: pulse-square 2s ease-in-out infinite;
+}
+
+@keyframes pulse-square {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.4; }
+}
+
+.status-text {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–accent-green);
+font-weight: 500;
+}
+
+/* === INPUT FIELD (Neo-Swiss Invisible) === */
+.input-group {
+margin-top: var(–sp-3);
+padding-top: var(–sp-2);
+border-top: 1px solid var(–border-light);
+}
+
+.input-label {
+font-family: var(–font-mono);
+font-size: 10px;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+color: var(–text-label);
+margin-bottom: 4px;
+display: block;
+}
+
+.input-field {
+width: 100%;
+border: none;
+border-bottom: 1px solid var(–border-light);
+background: transparent;
+font-family: var(–font-sans);
+font-size: 13px;
+padding: var(–sp-1) 0;
+color: var(–text-primary);
+outline: none;
+transition: border-color 0.15s ease;
+}
+
+.input-field:focus {
+border-bottom-color: var(–signal-orange);
+border-bottom-width: 2px;
+}
+
+.input-field::placeholder {
+color: var(–text-muted);
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(8px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+opacity: 0;
+}
+
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
+.delay-5 { animation-delay: 0.25s; }
+.delay-6 { animation-delay: 0.3s; }
+
+/* Scrollbar */
+.conversation-body::-webkit-scrollbar {
+width: 4px;
+}
+.conversation-body::-webkit-scrollbar-track {
+background: transparent;
+}
+.conversation-body::-webkit-scrollbar-thumb {
+background: var(–border-light);
+border-radius: 0;
+}
+</style>
+
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- HEADER -->
+
+  <header class="header animate-in">
+    <div>
+      <h1>Conversation Flow<br>& Joint Reasoning</h1>
+    </div>
+    <div class="header-meta">
+      SESSION_ID: 0x7A3F<br>
+      STATUS: ACTIVE<br>
+      MODELS: 2/2 ONLINE
+    </div>
+  </header>
+
+  <!-- MAIN GRID -->
+
+  <div class="grid-main">
+
+```
+<!-- LEFT: LLM Panels -->
+<div class="llm-panels">
+  <div class="label">MODEL_OUTPUTS</div>
+
+  <!-- LLM 1: Athena -->
+  <div class="llm-card animate-in delay-1">
+    <div class="llm-header">
+      <span class="llm-name">LLM 1: Athena</span>
+      <span class="llm-id">OID ^</span>
+    </div>
+    <div class="llm-query">What is Austria?</div>
+    <div class="llm-response-label">Attempt: Paris</div>
+    <div class="llm-response">
+      Reasoning: France is a republic in Western Europe. It is the largest country in the EU and its capital, located on the Seine River, is Paris — a center of geographical knowledge.
+    </div>
+    <div class="llm-footer">
+      <button class="llm-footer-link">View Weights</button>
+      <button class="llm-footer-link">Backchain ^</button>
+    </div>
+  </div>
+
+  <!-- LLM 2: Prometheus -->
+  <div class="llm-card animate-in delay-2">
+    <div class="llm-header">
+      <span class="llm-name">LLM 2: Prometheus</span>
+      <span class="llm-id">OID ^</span>
+    </div>
+    <div class="llm-query">Explain the butterfly effect:</div>
+    <div class="llm-response-label">Athena's Input</div>
+    <div class="llm-response">
+      The concept: France — one small change alters the entire state of a deterministic nonlinear system. Inline of chaos theory, it demonstrates sensitivity to initial conditions.
+    </div>
+    <div class="llm-footer">
+      <button class="llm-footer-link">View Weights</button>
+      <button class="llm-footer-link">Backchain ^</button>
+    </div>
+  </div>
+
+  <!-- LLM 2: Prometheus (2nd pass) -->
+  <div class="llm-card animate-in delay-3">
+    <div class="llm-header">
+      <span class="llm-name">LLM 2: Prometheus</span>
+      <span class="llm-id">OID ^</span>
+    </div>
+    <div class="llm-query">Explain the butterfly effect:</div>
+    <div class="llm-response-label">Prometheus Input</div>
+    <div class="llm-response">
+      The concept: The sample chain-related chaos theory, illustrative of the universal link between living entities. It demonstrates sensitivity to initial conditions.
+    </div>
+    <div class="llm-footer">
+      <button class="llm-footer-link">View Weights</button>
+      <button class="llm-footer-link">Backchain ^</button>
+    </div>
+  </div>
+</div>
+
+<!-- CENTER: Conversation -->
+<div class="conversation-panel animate-in delay-2">
+  <div class="conversation-header">
+    <div class="topic-tag">
+      <span class="topic-dot"></span>
+      TOPIC: AI COLLABORATION
+    </div>
+    <div class="toggle-segment">
+      <button class="toggle-option toggle-option--active">LIVE</button>
+      <button class="toggle-option">LOG</button>
+    </div>
+  </div>
+
+  <div class="conversation-body">
+    <!-- User message -->
+    <div class="msg msg--user">
+      <span class="msg-sender">USER</span>
+      <div class="msg-bubble">What the butterfly effect?</div>
+      <span class="msg-meta">8:00</span>
+    </div>
+
+    <!-- LLM response -->
+    <div class="msg msg--llm">
+      <span class="msg-sender">ATHENA</span>
+      <div class="msg-bubble">Paris. The sample is small. It is notable that each historical change was based on a series of iterations.</div>
+      <span class="msg-meta">8:01</span>
+    </div>
+
+    <!-- User follow-up -->
+    <div class="msg msg--user">
+      <span class="msg-sender">USER</span>
+      <div class="msg-bubble">Explain the butterfly effect — is reproduced social theory in geographical sensitivity?</div>
+      <span class="msg-meta">2:04</span>
+    </div>
+
+    <!-- LLM response -->
+    <div class="msg msg--llm">
+      <span class="msg-sender">ATHENA</span>
+      <div class="msg-bubble">Paris. The sample: surrounding the situation is where formidable co-theories go. All interconnected and transformed into knowledge.</div>
+      <span class="msg-meta">8:06</span>
+    </div>
+
+    <!-- User -->
+    <div class="msg msg--user">
+      <span class="msg-sender">USER</span>
+      <div class="msg-bubble">Explain the sample — conceptual base on costal control in terms of large-scale organizational constraints.</div>
+      <span class="msg-meta">2:08</span>
+    </div>
+
+    <!-- Final user -->
+    <div class="msg msg--user">
+      <span class="msg-sender">USER</span>
+      <div class="msg-bubble">Explain the butterfly effect?</div>
+      <span class="msg-meta">8:09</span>
+    </div>
+  </div>
+
+  <!-- Joint Reasoning -->
+  <div class="joint-reasoning">
+    <div class="joint-reasoning-label">JOINT_REASONING</div>
+    <div class="joint-reasoning-text">
+      Both Reasoning: Both models correctly identified factual capabilities and flagged differences in nonlinear data for later analysis of divergence patterns.
+    </div>
+  </div>
+
+  <!-- Topic Input -->
+  <div class="input-group" style="padding: var(--sp-2) var(--sp-3) var(--sp-3);">
+    <label class="input-label">NEW_QUERY</label>
+    <input type="text" class="input-field" placeholder="Enter a topic or question...">
+  </div>
+</div>
+
+<!-- RIGHT: Visualizer + Confidence -->
+<div class="right-column">
+
+  <!-- Reasoning Visualizer -->
+  <div class="visualizer-container animate-in delay-3">
+    <div class="label">REASONING_VISUALIZER</div>
+    <div class="section-title" style="margin-bottom: var(--sp-2);">Network Graph</div>
+    <div class="visualizer-canvas">
+      <canvas id="networkCanvas"></canvas>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background: #1971C2;"></span>Geography</div>
+      <div class="legend-item"><span class="legend-dot" style="background: #E8590C;"></span>Physics</div>
+      <div class="legend-item"><span class="legend-dot" style="background: #5C7CFA;"></span>Geography</div>
+      <div class="legend-item"><span class="legend-dot" style="background: #F76707;"></span>Physics</div>
+      <div class="legend-item"><span class="legend-dot" style="background: #845EF7;"></span>Language</div>
+      <div class="legend-item"><span class="legend-dot" style="background: #0A0A0A;"></span>Logic</div>
+      <div class="legend-item"><span class="legend-dot" style="background: #FCC419;"></span>Language</div>
+      <div class="legend-item"><span class="legend-dot" style="background: rgba(10,10,10,0.3);"></span>Logic</div>
+    </div>
+  </div>
+
+  <!-- Confidence Scores -->
+  <div class="confidence-container animate-in delay-4">
+    <div class="label">CONFIDENCE_SCORE</div>
+    <div class="section-title" style="margin-bottom: var(--sp-2);">Model Agreement</div>
+
+    <div class="confidence-row">
+      <span class="confidence-label-text">ATHENA</span>
+      <div class="confidence-bar-track">
+        <div class="confidence-bar-fill" style="width: 98%; background: var(--text-primary);"></div>
+      </div>
+      <span class="confidence-value">98%</span>
+    </div>
+
+    <div class="confidence-row">
+      <span class="confidence-label-text">PROMETHEUS</span>
+      <div class="confidence-bar-track">
+        <div class="confidence-bar-fill" style="width: 95%; background: var(--signal-orange);"></div>
+      </div>
+      <span class="confidence-value">95%</span>
+    </div>
+
+    <div style="margin-top: var(--sp-3); padding-top: var(--sp-2); border-top: 1px solid var(--border-light);">
+      <div class="status-row">
+        <span class="status-indicator"></span>
+        <span class="status-text">MODELS SYNCHRONIZED</span>
+      </div>
+
+      <div style="display: flex; gap: var(--sp-1); flex-wrap: wrap; margin-top: var(--sp-1);">
+        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 2px;">ROUNDS: 6</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 2px;">DELTA: 3%</span>
+        <span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); padding: 4px 8px; border: 1px solid var(--border-light); border-radius: 2px;">LATENCY: 42MS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Topic Categories -->
+  <div class="confidence-container animate-in delay-5">
+    <div class="label">TOPIC_CLASSIFICATION</div>
+    <div style="margin-top: var(--sp-1); display: flex; flex-direction: column; gap: 6px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-label); text-transform: uppercase; letter-spacing: 0.05em;">Chaos Theory</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600;">0.87</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-label); text-transform: uppercase; letter-spacing: 0.05em;">Geography</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600;">0.62</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Physics</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-muted);">0.41</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Logic</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-muted);">0.23</span>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- CONTROLS -->
+
+  <div class="controls animate-in delay-6">
+    <button class="btn btn--signal">Start</button>
+    <button class="btn btn--secondary">Pause</button>
+    <button class="btn btn--secondary">Reset</button>
+    <button class="btn btn--tertiary">New Topic</button>
+  </div>
+
+</div>
+
+<script>
+// Network Graph Visualization
+const canvas = document.getElementById('networkCanvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  ctx.scale(2, 2);
+}
+resize();
+
+const colors = ['#1971C2', '#E8590C', '#5C7CFA', '#845EF7', '#0A0A0A', '#F76707', '#FCC419'];
+
+// Generate nodes
+const nodes = [];
+const nodeCount = 28;
+for (let i = 0; i < nodeCount; i++) {
+  const w = canvas.width / 2;
+  const h = canvas.height / 2;
+  nodes.push({
+    x: 40 + Math.random() * (w - 80),
+    y: 30 + Math.random() * (h - 60),
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    r: 3 + Math.random() * 4,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    connections: []
+  });
+}
+
+// Generate edges
+const edges = [];
+for (let i = 0; i < nodes.length; i++) {
+  const numConnections = 1 + Math.floor(Math.random() * 3);
+  for (let c = 0; c < numConnections; c++) {
+    const j = Math.floor(Math.random() * nodes.length);
+    if (j !== i) {
+      edges.push([i, j]);
+    }
+  }
+}
+
+function drawGraph() {
+  const w = canvas.width / 2;
+  const h = canvas.height / 2;
+  ctx.clearRect(0, 0, w, h);
+
+  // Draw edges
+  edges.forEach(([i, j]) => {
+    const a = nodes[i];
+    const b = nodes[j];
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = 'rgba(10, 10, 10, 0.06)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Update and draw nodes
+  nodes.forEach(node => {
+    node.x += node.vx;
+    node.y += node.vy;
+
+    // Bounce
+    if (node.x < 20 || node.x > w - 20) node.vx *= -1;
+    if (node.y < 20 || node.y > h - 20) node.vy *= -1;
+
+    // Draw node
+    ctx.beginPath();
+    ctx.rect(node.x - node.r / 2, node.y - node.r / 2, node.r, node.r);
+    ctx.fillStyle = node.color;
+    ctx.fill();
+  });
+
+  requestAnimationFrame(drawGraph);
+}
+
+drawGraph();
+
+window.addEventListener('resize', () => {
+  resize();
+});
+
+// Button interactions
+document.querySelectorAll('.toggle-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.toggle-option').forEach(b => b.classList.remove('toggle-option--active'));
+    btn.classList.add('toggle-option--active');
+  });
+});
+
+// Animate confidence bars on load
+setTimeout(() => {
+  document.querySelectorAll('.confidence-bar-fill').forEach(bar => {
+    const target = bar.style.width;
+    bar.style.width = '0%';
+    setTimeout(() => { bar.style.width = target; }, 100);
+  });
+}, 300);
+</script>
+
+</body>
+</html>
+
