@@ -25,7 +25,6 @@ A Next.js application that lets two LLMs debate each other in real-time with mod
 - Node.js 20+
 - npm
 - Convex account + deployment
-- OpenRouter API key
 
 ## Getting Started
 
@@ -44,7 +43,6 @@ cp .env.local.example .env.local
 3. Configure `.env.local`:
 
 ```env
-OPENROUTER_API_KEY=your_openrouter_api_key
 CONVEX_DEPLOYMENT_URL=https://your-team-your-project.convex.cloud
 NEXT_PUBLIC_CONVEX_URL=https://your-team-your-project.convex.cloud
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -89,7 +87,6 @@ npx vercel
 ```
 
 2. Set environment variables in Vercel project settings:
-- `OPENROUTER_API_KEY`
 - `CONVEX_DEPLOYMENT_URL`
 - `NEXT_PUBLIC_CONVEX_URL`
 - `NEXT_PUBLIC_APP_URL` (your Vercel URL)
@@ -107,6 +104,8 @@ npx vercel --prod
 - Convex functions run without errors
 
 ## Notes
+
+- Users provide their own OpenRouter API key in the setup form. Keys are kept in server memory per debate and are not written to Convex.
 
 - If Convex bindings change, run:
 

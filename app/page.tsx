@@ -37,6 +37,7 @@ function SetupPage() {
   });
   const [maxTurns, setMaxTurns] = useState<number>(CONFIG.MAX_TURNS_DEFAULT);
   const [winningCondition, setWinningCondition] = useState<WinningCondition>("self-terminate");
+  const [apiKey, setApiKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +50,10 @@ function SetupPage() {
   async function handleStartDebate() {
     if (topicError) {
       setError(topicError);
+      return;
+    }
+    if (!apiKey.trim()) {
+      setError("OpenRouter API key is required.");
       return;
     }
 
@@ -76,6 +81,7 @@ function SetupPage() {
           },
           maxTurns: clampedTurns,
           winningCondition,
+          apiKey: apiKey.trim(),
         }),
       });
 
@@ -88,6 +94,9 @@ function SetupPage() {
       const debateId = data?.debate?.id ?? data?.debate?._id;
       if (!debateId) {
         throw new Error("Debate created but no id was returned.");
+      }
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(`debate-key:${debateId}`, apiKey.trim());
       }
 
       router.push(`/debate/${debateId}`);
@@ -255,6 +264,21 @@ function SetupPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="api-key">Your OpenRouter API Key</Label>
+              <Input
+                id="api-key"
+                type="password"
+                value={apiKey}
+                onChange={(event) => setApiKey(event.target.value)}
+                placeholder="sk-or-v1-..."
+                autoComplete="off"
+              />
+              <p className="text-xs text-zinc-500">
+                Used only in server memory for this debate and not written to Convex.
+              </p>
             </div>
 
             {error ? <p className="text-sm text-red-400">{error}</p> : null}

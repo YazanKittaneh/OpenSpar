@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { api } from "@/convex/_generated/api";
 import { getConvexHttpClient } from "@/lib/convex";
+import { getDebateApiKey, setDebateApiKey } from "@/lib/debate-keys";
 import { isConvexIdError } from "@/lib/errors";
 
 const validActions = ["pause", "resume", "skip", "inject"] as const;
@@ -29,9 +30,26 @@ export async function POST(
     }
 
     if (action.type === "resume") {
+      const providedKey =
+        typeof action.apiKey === "string" && action.apiKey.trim().length > 0
+          ? action.apiKey.trim()
+          : undefined;
+      const apiKey = providedKey ?? getDebateApiKey(id);
+      if (!apiKey) {
+        return NextResponse.json(
+          { error: "API key required to resume this debate." },
+          { status: 400 },
+        );
+      }
+
+      if (providedKey) {
+        setDebateApiKey(id, providedKey);
+      }
+
       void convex
         .action(api.debateEngine.startDebate, {
           debateId: id as never,
+          apiKey,
         })
         .catch((error) => {
           console.error("Failed to resume debate:", error);

@@ -27,6 +27,7 @@ type ActionType = "pause" | "resume" | "skip" | "inject";
 type QueuedAction = {
   type: ActionType;
   payload?: string;
+  apiKey?: string;
 };
 
 function DebatePageContent() {
@@ -218,6 +219,24 @@ function DebatePageContent() {
     [debateId],
   );
 
+  const getStoredApiKey = useCallback(() => {
+    if (!debateId || typeof window === "undefined") return undefined;
+    const key = sessionStorage.getItem(`debate-key:${debateId}`) ?? undefined;
+    return key && key.trim().length > 0 ? key : undefined;
+  }, [debateId]);
+
+  const getOrAskApiKey = useCallback(() => {
+    const stored = getStoredApiKey();
+    if (stored) return stored;
+    if (typeof window === "undefined" || !debateId) return undefined;
+    const entered = window.prompt("Enter your OpenRouter API key to resume this debate:")?.trim();
+    if (entered) {
+      sessionStorage.setItem(`debate-key:${debateId}`, entered);
+      return entered;
+    }
+    return undefined;
+  }, [debateId, getStoredApiKey]);
+
   useEffect(() => {
     if (connectionStatus !== "connected" || queuedActions.length === 0) return;
 
@@ -266,7 +285,13 @@ function DebatePageContent() {
               isPaused={isPaused}
               isCompleted={Boolean(isCompleted)}
               isSubmitting={isActionLoading}
-              onPause={() => sendAction({ type: isPaused ? "resume" : "pause" })}
+              onPause={() =>
+                sendAction(
+                  isPaused
+                    ? { type: "resume", apiKey: getOrAskApiKey() }
+                    : { type: "pause" },
+                )
+              }
               onSkip={() => sendAction({ type: "skip" })}
               onInject={(comment) => sendAction({ type: "inject", payload: comment })}
             />

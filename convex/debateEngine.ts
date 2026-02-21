@@ -7,7 +7,7 @@ import { streamDebateResponse } from "@/lib/llm";
 import { Turn } from "@/lib/types";
 
 export const runDebateTurn = action({
-  args: { debateId: v.id("debates") },
+  args: { debateId: v.id("debates"), apiKey: v.string() },
   handler: async (ctx, args) => {
     const debate = await ctx.runQuery(api.debates.getDebate, { id: args.debateId });
     if (!debate || debate.status !== "running") {
@@ -63,6 +63,7 @@ export const runDebateTurn = action({
 
     try {
       const stream = streamDebateResponse(
+        args.apiKey,
         speaker,
         debater,
         debate.topic,
@@ -182,7 +183,7 @@ export const runDebateTurn = action({
 });
 
 export const startDebate = action({
-  args: { debateId: v.id("debates") },
+  args: { debateId: v.id("debates"), apiKey: v.string() },
   handler: async (ctx, args) => {
     await ctx.runMutation(api.debates.updateDebateStatus, {
       id: args.debateId,
@@ -198,6 +199,7 @@ export const startDebate = action({
     while (keepRunning) {
       keepRunning = await ctx.runAction(api.debateEngine.runDebateTurn, {
         debateId: args.debateId,
+        apiKey: args.apiKey,
       });
 
       const updated = await ctx.runQuery(api.debates.getDebate, {

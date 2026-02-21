@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { api } from "@/convex/_generated/api";
 import { getConvexHttpClient } from "@/lib/convex";
+import { setDebateApiKey } from "@/lib/debate-keys";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,11 +13,12 @@ export async function POST(req: NextRequest) {
       debaterB,
       maxTurns = 10,
       winningCondition = "self-terminate",
+      apiKey,
     } = body;
 
-    if (!topic || !debaterA || !debaterB) {
+    if (!topic || !debaterA || !debaterB || !apiKey) {
       return NextResponse.json(
-        { error: "Missing required fields: topic, debaterA, debaterB" },
+        { error: "Missing required fields: topic, debaterA, debaterB, apiKey" },
         { status: 400 },
       );
     }
@@ -32,8 +34,10 @@ export async function POST(req: NextRequest) {
 
     const debate = await convex.query(api.debates.getDebate, { id: id as never });
     if (debate) {
+      setDebateApiKey(String(debate._id), String(apiKey));
       void convex.action(api.debateEngine.startDebate, {
         debateId: id as never,
+        apiKey: String(apiKey),
       });
     }
 

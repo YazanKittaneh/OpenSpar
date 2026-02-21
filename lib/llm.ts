@@ -1,18 +1,17 @@
 import OpenAI from "openai";
 
-import { getOpenRouterEnv } from "@/lib/env";
 import { DebaterConfig, Speaker, Turn } from "@/lib/types";
 
 const REQUEST_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 2;
 
-function getClient() {
-  const env = getOpenRouterEnv();
+function getClient(apiKey: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   return new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
-    apiKey: env.OPENROUTER_API_KEY,
+    apiKey,
     defaultHeaders: {
-      "HTTP-Referer": env.NEXT_PUBLIC_APP_URL,
+      "HTTP-Referer": appUrl,
       "X-Title": "LLM Debate Arena",
     },
   });
@@ -101,6 +100,7 @@ function parseReasoningChunk(
 }
 
 export async function* streamDebateResponse(
+  apiKey: string,
   speaker: Speaker,
   debater: DebaterConfig,
   topic: string,
@@ -123,7 +123,7 @@ export async function* streamDebateResponse(
     const timer = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT_MS);
 
     try {
-      const openai = getClient();
+      const openai = getClient(apiKey);
       const stream = await openai.chat.completions.create({
         model: debater.model,
         messages,

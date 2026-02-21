@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { getConvexEnv, getOpenRouterEnv } from "./env";
+import { getConvexEnv } from "./env";
 
 const originalEnv = { ...process.env };
 
@@ -9,19 +9,19 @@ afterEach(() => {
 });
 
 describe("env accessors", () => {
-  it("gets convex env without requiring openrouter key", () => {
+  it("gets convex env", () => {
     process.env.CONVEX_DEPLOYMENT_URL = "https://example.convex.cloud";
     process.env.NEXT_PUBLIC_CONVEX_URL = "https://example.convex.cloud";
-    delete process.env.OPENROUTER_API_KEY;
 
     const env = getConvexEnv();
     expect(env.CONVEX_DEPLOYMENT_URL).toContain("convex.cloud");
   });
 
-  it("requires openrouter key only for openrouter accessor", () => {
-    delete process.env.OPENROUTER_API_KEY;
-    expect(() => getOpenRouterEnv()).toThrowError(
-      "Missing required environment variable: OPENROUTER_API_KEY",
+  it("throws when convex url env is missing", () => {
+    process.env.CONVEX_DEPLOYMENT_URL = "https://example.convex.cloud";
+    delete process.env.NEXT_PUBLIC_CONVEX_URL;
+    expect(() => getConvexEnv()).toThrowError(
+      "Missing required environment variable: NEXT_PUBLIC_CONVEX_URL",
     );
   });
 });
