@@ -1,0 +1,23 @@
+# Placeholder
+
+This is a placeholder file.
+
+Replace this with an actual screenshot of a live debate.
+
+## How to Capture:
+
+1. Start a debate at http://localhost:3000
+2. Let it run for 3-4 turns
+3. Take screenshot showing:
+   - Both debater cards
+   - Current speaker highlighted
+   - Moderator controls
+   - Argument history
+4. Replace this file with your PNG
+
+## Screenshot Requirements:
+
+- **Size**: 1440×900 or larger
+- **Format**: PNG
+- **Content**: Active debate with multiple turns
+- **Highlight**: Current speaker in Signal Orange

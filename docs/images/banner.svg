@@ -1,0 +1,152 @@
+<!-- 
+  Debate Arena Banner
+  Neo-Swiss Design System
+  
+  Colors:
+  - Black: #000000
+  - White: #FFFFFF  
+  - Signal Orange: #FF4500
+  
+  Usage:
+  - Export as PNG at 2400x600 for GitHub social preview
+  - Export as PNG at 1200x300 for README header
+-->
+<svg width="2400" height="600" viewBox="0 0 2400 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Swiss Grid Pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF" stroke-width="0.5" opacity="0.1"/>
+    </pattern>
+    
+    <!-- Noise Texture -->
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="2400" height="600" fill="#000000"/>
+  
+  <!-- Swiss Grid Overlay -->
+  <rect width="2400" height="600" fill="url(#grid)"/>
+  
+  <!-- Diagonal Division - Heavy Left Side -->
+  <polygon points="0,0 1200,0 900,600 0,600" fill="#0a0a0a"/>
+  
+  <!-- Signal Orange Accent Line -->
+  <rect x="0" y="500" width="2400" height="4" fill="#FF4500"/>
+  <!-- Vertical Signal Orange Bar -->
+  <rect x="100" y="100" width="8" height="400" fill="#FF4500"/>
+  
+  <!-- Main Title: MODEL ARENA -->
+  <text x="180" y="220" 
+        font-family="system-ui, -apple-system, sans-serif" 
+        font-size="120" 
+        font-weight="900" 
+        fill="#FFFFFF"
+        letter-spacing="-0.02em">
+    MODEL
+  </text>
+  
+  <text x="180" y="340" 
+        font-family="system-ui, -apple-system, sans-serif" 
+        font-size="120" 
+        font-weight="900" 
+        fill="#FF4500"
+        letter-spacing="-0.02em">
+    ARENA
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="180" y="400" 
+        font-family="ui-monospace, SF Mono, monospace" 
+        font-size="20" 
+        font-weight="400" 
+        fill="#FFFFFF"
+        letter-spacing="0.1em">
+    AI DEBATE COMBAT SYSTEM v0.1
+  </text>
+  
+  <!-- Right Side - Technical Specs -->
+  <text x="1400" y="180" 
+        font-family="ui-monospace, SF Mono, monospace" 
+        font-size="16" 
+        font-weight="400" 
+        fill="#FF4500">
+    [SYSTEM SPECS]
+  </text>
+  
+  <text x="1400" y="220" 
+        font-family="ui-monospace, SF Mono, monospace" 
+        font-size="14" 
+        font-weight="400" 
+        fill="#FFFFFF">
+    MODELS: 6+ // Claude | GPT-4 | Gemini | Llama
+  </text>
+  
+  <text x="1400" y="250" 
+        font-family="ui-monospace, SF Mono, monospace" 
+        font-size="14" 
+        font-weight="400" 
+        fill="#FFFFFF">
+    STREAM: Real-time SSE
+  </text>
+  
+  <text x="1400" y="280" 
+        font-family="ui-monospace, SF Mono, monospace" 
+        font-size="14" 
+        font-weight="400" 
+        fill="#FFFFFF">
+    STACK: Next.js 16 + Convex + TypeScript
+  </text>
+  
+  <text x="1400" y="310" 
+        font-family="ui-monospace, SF Mono, monospace" 
+        font-size="14" 
+        font-weight="400" 
+        fill="#FFFFFF">
+    DESIGN: Neo-Swiss
+  </text>
+  
+  <!-- VS Icon -->
+  <text x="2000" y="300" 
+        font-family="system-ui, -apple-system, sans-serif" 
+        font-size="80" 
+        font-weight="900" 
+        fill="#FF4500"
+        text-anchor="middle">
+    VS
+  </text>
+  
+  <!-- Decorative Elements -->
+  <!-- Horizontal Lines - Top Right -->
+  <rect x="1800" y="150" width="300" height="1" fill="#FFFFFF" opacity="0.3"/>
+  <rect x="1850" y="160" width="250" height="1" fill="#FFFFFF" opacity="0.3"/>
+  <rect x="1900" y="170" width="200" height="1" fill="#FFFFFF" opacity="0.3"/>
+  
+  <!-- Square Grid Pattern - Bottom Right -->
+  <g opacity="0.2">
+    <rect x="2000" y="400" width="20" height="20" fill="#FFFFFF"/>
+    <rect x="2030" y="400" width="20" height="20" fill="#FFFFFF"/>
+    <rect x="2060" y="400" width="20" height="20" fill="#FFFFFF"/>
+    <rect x="2000" y="430" width="20" height="20" fill="#FFFFFF"/>
+    <rect x="2030" y="430" width="20" height="20" fill="#FF4500"/>
+    <rect x="2060" y="430" width="20" height="20" fill="#FFFFFF"/>
+    <rect x="2000" y="460" width="20" height="20" fill="#FFFFFF"/>
+    <rect x="2030" y="460" width="20" height="20" fill="#FFFFFF"/>
+    <rect x="2060" y="460" width="20" height="20" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Open Source Badge -->
+  <rect x="1400" y="380" width="180" height="40" fill="none" stroke="#FF4500" stroke-width="2"/>
+  <text x="1490" y="405" 
+        font-family="ui-monospace, SF Mono, monospace" 
+        font-size="12" 
+        font-weight="700" 
+        fill="#FF4500"
+        text-anchor="middle">
+    OPEN SOURCE
+  </text>
+  
+</svg>

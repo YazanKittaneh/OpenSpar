@@ -1,0 +1,24 @@
+# Placeholder
+
+This is a placeholder file.
+
+Replace this with an actual screenshot of the setup interface.
+
+## How to Capture:
+
+1. Run `npm run dev`
+2. Open http://localhost:3000
+3. Set up a debate:
+   - Topic: "Should frontier AI labs be regulated?"
+   - Model A: Claude 3.5 Sonnet
+   - Model B: GPT-4
+   - Max Turns: 10
+4. Take screenshot
+5. Replace this file with your PNG
+
+## Screenshot Requirements:
+
+- **Size**: 1440×900 or larger
+- **Format**: PNG
+- **Content**: Full setup form visible
+- **Clean**: No personal API keys visible
