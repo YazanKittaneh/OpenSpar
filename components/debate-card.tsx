@@ -14,7 +14,7 @@ export function DebateCard({
   return (
     <div
       className={[
-        "border bg-[#0A0A0A] p-0 rounded-[2px] transition-none",
+        "border bg-card p-0 rounded-[2px] transition-none",
         isCurrentSpeaker
           ? "border-[#FF4500] border-l-2"
           : "border-foreground/10",

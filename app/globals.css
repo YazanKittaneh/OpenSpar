@@ -92,9 +92,12 @@
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: rgba(255, 255, 255, 0.12);
   --sidebar-ring: #FF4500;
+  --grid-line: rgba(255, 255, 255, 0.03);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
 }
 
-/* ── Light mode (fallback) ── */
+/* ── Light mode ── */
 :root {
   --radius: 2px;
   --background: #FFFFFF;
@@ -128,6 +131,9 @@
   --sidebar-accent-foreground: #000000;
   --sidebar-border: rgba(0, 0, 0, 0.12);
   --sidebar-ring: #FF4500;
+  --grid-line: rgba(0, 0, 0, 0.04);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
 }
 
 @layer base {
@@ -183,8 +189,8 @@
 /* Swiss grid background overlay */
 .bg-swiss-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 8px 8px;
 }
 
@@ -331,10 +337,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--scrollbar-thumb);
   border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--scrollbar-thumb-hover);
 }

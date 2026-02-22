@@ -7,6 +7,7 @@ import { ControlBar } from "@/components/control-bar";
 import { DebateCard } from "@/components/debate-card";
 import { DebateLog } from "@/components/debate-log";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { WinnerBanner } from "@/components/winner-banner";
 import { Badge } from "@/components/ui/badge";
 import { Speaker, Turn } from "@/lib/types";
@@ -313,6 +314,7 @@ function DebatePageContent() {
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
+            <ThemeToggle />
             <ControlBar
               isPaused={isPaused}
               isCompleted={Boolean(isCompleted)}

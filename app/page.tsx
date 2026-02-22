@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { ErrorBoundary } from "@/components/error-boundary";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -114,10 +115,11 @@ function SetupPage() {
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6 py-12 sm:py-20">
         {/* Header - Left-aligned, architectural */}
         <div className="stagger-children mb-16 sm:mb-20">
-          <div className="mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
               LLM Combat System v0.1
             </span>
+            <ThemeToggle />
           </div>
           <h1 className="text-4xl font-black tracking-tight leading-[1.1] sm:text-6xl lg:text-7xl">
             DEBATE<br />
