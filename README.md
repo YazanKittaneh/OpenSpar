@@ -1,13 +1,9 @@
 <div align="center">
 
-<pre>
-███╗   ███╗ ██████╗ ██████╗ ███████╗██╗         █████╗ ██████╗ ███████╗███╗   ██╗ █████╗ 
-████╗ ████║██╔═══██╗██╔══██╗██╔════╝██║        ██╔══██╗██╔══██╗██╔════╝████╗  ██║██╔══██╗
-██╔████╔██║██║   ██║██║  ██║█████╗  ██║        ███████║██████╔╝█████╗  ██╔██╗ ██║███████║
-██║╚██╔╝██║██║   ██║██║  ██║██╔══╝  ██║        ██╔══██║██╔══██╗██╔══╝  ██║╚██╗██║██╔══██║
-██║ ╚═╝ ██║╚██████╔╝██████╔╝███████╗███████╗██╗██║  ██║██║  ██║███████╗██║ ╚████║██║  ██║
-╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝
-</pre>
+<!-- BANNER - Replace with your own banner image -->
+<a href="https://debate-arena.vercel.app">
+  <img src="public/banner.png" alt="Debate Arena - AI Model Combat" width="100%">
+</a>
 
 <h3>🥊 Watch AI Models Battle It Out in Real-Time 🥊</h3>
 
@@ -171,25 +167,107 @@ All models powered by [OpenRouter](https://openrouter.ai)—bringing the best AI
 
 ## 📸 Screenshots
 
-*Coming soon! We'd love community screenshots.*
+### 🎨 Banner Design
 
-### The Setup Interface
-A brutalist, architectural form with clear hierarchy:
-- Left-aligned headers with Signal Orange accents
-- Model selection with VS dividers
-- Clean parameter controls
+<div align="center">
+  <!-- Replace with your actual banner.png after creating it -->
+  <img src="docs/images/banner-preview.png" alt="Debate Arena Banner" width="800">
+  <p><em>Bold Neo-Swiss aesthetic with Signal Orange accents</em></p>
+</div>
 
-### The Debate Arena
-Real-time streaming with:
-- Current speaker highlighted in Signal Orange
-- Typing indicators and live updates
-- Scrollable debate history
+---
 
-### The Winner Banner
-Victory announcement with:
-- Bold typography
-- Clean result presentation
-- Option to start a new debate
+### 🖥️ Application Interface
+
+#### 1. Setup Interface
+<div align="center">
+  <img src="docs/images/setup-interface.png" alt="Setup Interface" width="800">
+  <p><em>Configure your debate: choose models, set topic, define win conditions</em></p>
+</div>
+
+**Key Features:**
+- 🎛️ **Model Selection**: Pick from 6+ leading LLMs via dropdown
+- ⚔️ **VS Divider**: Visual separation between combatants
+- 🎯 **Win Conditions**: Self-terminate, User decides, or AI Judge
+- 🔐 **API Key Input**: Secure, server-memory-only key handling
+
+---
+
+#### 2. Live Debate Arena
+<div align="center">
+  <img src="docs/images/debate-arena.png" alt="Live Debate" width="800">
+  <p><em>Real-time streaming with typing indicators and argument history</em></p>
+</div>
+
+**Key Features:**
+- 📡 **Real-time Streaming**: SSE-powered live updates
+- 🎤 **Current Speaker**: Highlighted in Signal Orange (#FF4500)
+- ⏸️ **Moderator Controls**: Pause, skip, inject comments
+- 📜 **Scrollable History**: Complete debate transcript
+
+---
+
+#### 3. Winner Announcement
+<div align="center">
+  <img src="docs/images/winner-banner.png" alt="Winner Banner" width="800">
+  <p><em>Bold victory announcement with reasoning and next steps</em></p>
+</div>
+
+**Key Features:**
+- 🏆 **Winner Display**: Large, bold typography
+- 📝 **Victory Reasoning**: Why the winner was chosen
+- 🔄 **New Debate**: Quick link to start another match
+
+---
+
+### 🌓 Dark/Light Mode
+
+<div align="center"
+  <table>
+    <tr>
+      <td align="center">
+        <img src="docs/images/dark-mode.png" alt="Dark Mode" width="400">
+        <br>
+        <sub>🌙 Dark Mode</sub>
+      </td>
+      <td align="center">
+        <img src="docs/images/light-mode.png" alt="Light Mode" width="400">
+        <br>
+        <sub>☀️ Light Mode</sub>
+      </td>
+    </tr>
+  </table>
+</div>
+
+---
+
+### 📱 Mobile Responsive
+
+<div align="center">
+  <img src="docs/images/mobile-view.png" alt="Mobile Responsive" width="400">
+  <p><em>Fully responsive design for debates on the go</em></p>
+</div>
+
+---
+
+### 🎥 Demo Video
+
+<div align="center">
+  
+[![Debate Arena Demo](docs/images/video-thumbnail.png)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
+*[▶️ Click to watch the demo video]*
+
+</div>
+
+---
+
+> 📤 **Want to add your screenshots?** 
+> 
+> 1. Take screenshots of your debates
+> 2. Save them to `docs/images/` directory
+> 3. Submit a PR with your images
+> 4. We'll feature the best debates!
 
 ## 🛠️ Development
 
