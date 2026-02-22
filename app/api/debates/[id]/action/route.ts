@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 
 import { api } from "@/convex/_generated/api";
+import { decryptApiKey } from "@/lib/api-key-crypto";
 import { getConvexHttpClient } from "@/lib/convex";
 import { getDebateApiKey, setDebateApiKey } from "@/lib/debate-keys";
 import { isConvexIdError } from "@/lib/errors";
@@ -14,15 +16,21 @@ export async function POST(
   try {
     const { id } = await params;
     const action = await req.json();
-    const convex = getConvexHttpClient();
+    const token = await convexAuthNextjsToken();
+    const convex = getConvexHttpClient(token);
 
     if (!action || !validActions.includes(action.type)) {
       return NextResponse.json({ error: "Invalid action type" }, { status: 400 });
     }
 
+    const actionPayload = {
+      type: action.type,
+      payload: typeof action.payload === "string" ? action.payload : undefined,
+    } as const;
+
     const success = await convex.mutation(api.actions.processUserAction, {
       debateId: id as never,
-      action,
+      action: actionPayload,
     });
 
     if (!success) {
@@ -34,7 +42,14 @@ export async function POST(
         typeof action.apiKey === "string" && action.apiKey.trim().length > 0
           ? action.apiKey.trim()
           : undefined;
-      const apiKey = providedKey ?? getDebateApiKey(id);
+      let apiKey = providedKey ?? getDebateApiKey(id);
+
+      if (!apiKey && token) {
+        const saved = await convex.query(api.userApiKeys.getMyEncryptedApiKey, {});
+        if (saved) {
+          apiKey = decryptApiKey(saved);
+        }
+      }
       if (!apiKey) {
         return NextResponse.json(
           { error: "API key required to resume this debate." },

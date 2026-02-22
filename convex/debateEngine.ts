@@ -43,7 +43,7 @@ export const runDebateTurn = action({
     const debater = speaker === "A" ? debate.debaterA : debate.debaterB;
     const opponent = speaker === "A" ? debate.debaterB : debate.debaterA;
 
-    const mappedTurns: Turn[] = turnsResult.turns.map((turn: any) => ({
+    const mappedTurns: Turn[] = turnsResult.turns.map((turn) => ({
       number: turn.number,
       speaker: turn.speaker,
       content: turn.content,

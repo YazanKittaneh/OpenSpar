@@ -9,7 +9,6 @@ import { DebateLog } from "@/components/debate-log";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WinnerBanner } from "@/components/winner-banner";
-import { Badge } from "@/components/ui/badge";
 import { Speaker, Turn } from "@/lib/types";
 
 type DebateApi = {
@@ -224,17 +223,11 @@ function DebatePageContent() {
     return key && key.trim().length > 0 ? key : undefined;
   }, [debateId]);
 
-  const getOrAskApiKey = useCallback(() => {
+  const getResumeApiKey = useCallback(() => {
     const stored = getStoredApiKey();
     if (stored) return stored;
-    if (typeof window === "undefined" || !debateId) return undefined;
-    const entered = window.prompt("Enter your OpenRouter API key to resume this debate:")?.trim();
-    if (entered) {
-      sessionStorage.setItem(`debate-key:${debateId}`, entered);
-      return entered;
-    }
     return undefined;
-  }, [debateId, getStoredApiKey]);
+  }, [getStoredApiKey]);
 
   useEffect(() => {
     if (connectionStatus !== "connected" || queuedActions.length === 0) return;
@@ -322,7 +315,7 @@ function DebatePageContent() {
               onPause={() =>
                 sendAction(
                   isPaused
-                    ? { type: "resume", apiKey: getOrAskApiKey() }
+                    ? { type: "resume", apiKey: getResumeApiKey() }
                     : { type: "pause" },
                 )
               }

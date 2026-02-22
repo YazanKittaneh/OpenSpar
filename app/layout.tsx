@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Schibsted_Grotesk, JetBrains_Mono } from "next/font/google";
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
+
+import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -20,7 +23,7 @@ export const metadata: Metadata = {
   description: "Head-to-head structured debates between language models.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -31,7 +34,11 @@ export default function RootLayout({
         className={`${displayFont.variable} ${monoFont.variable} antialiased`}
         style={{ fontFamily: "var(--font-display), ui-sans-serif, system-ui, sans-serif" }}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ConvexAuthNextjsServerProvider>
+          <ConvexClientProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </ConvexClientProvider>
+        </ConvexAuthNextjsServerProvider>
       </body>
     </html>
   );

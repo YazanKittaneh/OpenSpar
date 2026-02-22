@@ -9,13 +9,16 @@
  */
 
 import type * as actions from "../actions.js";
+import type * as auth from "../auth.js";
 import type * as cleanup from "../cleanup.js";
 import type * as cron from "../cron.js";
 import type * as debateEngine from "../debateEngine.js";
 import type * as debates from "../debates.js";
 import type * as events from "../events.js";
+import type * as http from "../http.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as turns from "../turns.js";
+import type * as userApiKeys from "../userApiKeys.js";
 
 import type {
   ApiFromModules,
@@ -25,13 +28,16 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   actions: typeof actions;
+  auth: typeof auth;
   cleanup: typeof cleanup;
   cron: typeof cron;
   debateEngine: typeof debateEngine;
   debates: typeof debates;
   events: typeof events;
+  http: typeof http;
   subscriptions: typeof subscriptions;
   turns: typeof turns;
+  userApiKeys: typeof userApiKeys;
 }>;
 
 /**

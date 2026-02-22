@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth } from "convex/react";
 
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -22,6 +24,8 @@ type DebaterForm = {
 
 function SetupPage() {
   const router = useRouter();
+  const { signIn, signOut } = useAuthActions();
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
 
   const [topic, setTopic] = useState("");
   const [debaterA, setDebaterA] = useState<DebaterForm>({
@@ -37,6 +41,13 @@ function SetupPage() {
   const [maxTurns, setMaxTurns] = useState<number>(CONFIG.MAX_TURNS_DEFAULT);
   const [winningCondition, setWinningCondition] = useState<WinningCondition>("self-terminate");
   const [apiKey, setApiKey] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authMode, setAuthMode] = useState<"signIn" | "signUp">("signIn");
+  const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
+  const [savedKeyMask, setSavedKeyMask] = useState<string | null>(null);
+  const [isSavedKeyLoading, setIsSavedKeyLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,16 +57,116 @@ function SetupPage() {
     return null;
   }, [topic]);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setSavedKeyMask(null);
+      return;
+    }
+
+    const loadSavedKeyState = async () => {
+      try {
+        setIsSavedKeyLoading(true);
+        const response = await fetch("/api/account/api-key");
+        if (!response.ok) {
+          throw new Error("Failed to load account key status.");
+        }
+        const data = await response.json();
+        setSavedKeyMask(data?.hasSavedKey ? data.maskedKey ?? "saved" : null);
+      } catch (err) {
+        setAuthMessage(err instanceof Error ? err.message : "Failed to load account key status.");
+      } finally {
+        setIsSavedKeyLoading(false);
+      }
+    };
+
+    void loadSavedKeyState();
+  }, [isAuthenticated]);
+
+  async function handleAuthSubmit() {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !password) {
+      setAuthMessage("Email and password are required.");
+      return;
+    }
+
+    setIsAuthSubmitting(true);
+    setAuthMessage(null);
+    try {
+      await signIn("password", {
+        flow: authMode,
+        email: normalizedEmail,
+        password,
+      });
+      setPassword("");
+      setAuthMessage(authMode === "signUp" ? "Account created. You are now signed in." : "Signed in.");
+    } catch (err) {
+      setAuthMessage(err instanceof Error ? err.message : "Authentication failed.");
+    } finally {
+      setIsAuthSubmitting(false);
+    }
+  }
+
+  async function handleSignOut() {
+    setIsAuthSubmitting(true);
+    setAuthMessage(null);
+    try {
+      await signOut();
+      setSavedKeyMask(null);
+      setAuthMessage("Signed out.");
+    } catch (err) {
+      setAuthMessage(err instanceof Error ? err.message : "Failed to sign out.");
+    } finally {
+      setIsAuthSubmitting(false);
+    }
+  }
+
+  async function handleSaveAccountKey() {
+    const trimmed = apiKey.trim();
+    if (!trimmed) {
+      setError("Enter an API key to save.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/account/api-key", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: trimmed }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to save API key.");
+      }
+      const data = await response.json();
+      setSavedKeyMask(data?.maskedKey ?? "saved");
+      setAuthMessage("API key saved to your account.");
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save API key.");
+    }
+  }
+
+  async function handleDeleteAccountKey() {
+    try {
+      const response = await fetch("/api/account/api-key", {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to delete saved API key.");
+      }
+      setSavedKeyMask(null);
+      setAuthMessage("Saved API key removed.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete saved API key.");
+    }
+  }
+
   async function handleStartDebate() {
     if (topicError) {
       setError(topicError);
       return;
     }
-    if (!apiKey.trim()) {
-      setError("OpenRouter API key is required.");
-      return;
-    }
-
     const clampedTurns = Math.max(
       CONFIG.MAX_TURNS_MIN,
       Math.min(CONFIG.MAX_TURNS_LIMIT, maxTurns),
@@ -80,7 +191,7 @@ function SetupPage() {
           },
           maxTurns: clampedTurns,
           winningCondition,
-          apiKey: apiKey.trim(),
+          apiKey: apiKey.trim() || undefined,
         }),
       });
 
@@ -94,7 +205,7 @@ function SetupPage() {
       if (!debateId) {
         throw new Error("Debate created but no id was returned.");
       }
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && apiKey.trim()) {
         sessionStorage.setItem(`debate-key:${debateId}`, apiKey.trim());
       }
 
@@ -322,7 +433,106 @@ function SetupPage() {
               <div className="h-px flex-1 bg-foreground/10" />
             </div>
 
-            <div className="max-w-lg space-y-1">
+            <div className="max-w-lg space-y-6">
+              <div className="space-y-2 border border-foreground/10 p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+                  Account [optional]
+                </p>
+
+                {!isAuthLoading && isAuthenticated ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Signed in. Save one OpenRouter key and reuse it across devices.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void handleSignOut()}
+                        disabled={isAuthSubmitting}
+                      >
+                        Sign out
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void handleDeleteAccountKey()}
+                        disabled={isAuthSubmitting || !savedKeyMask}
+                      >
+                        Remove saved key
+                      </Button>
+                    </div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+                      {isSavedKeyLoading
+                        ? "Saved key: [LOADING]"
+                        : savedKeyMask
+                          ? `Saved key: [${savedKeyMask}]`
+                          : "Saved key: [NONE]"}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="account-email">Email</Label>
+                        <Input
+                          id="account-email"
+                          type="email"
+                          value={email}
+                          onChange={(event) => setEmail(event.target.value)}
+                          autoComplete="email"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="account-password">Password</Label>
+                        <Input
+                          id="account-password"
+                          type="password"
+                          value={password}
+                          onChange={(event) => setPassword(event.target.value)}
+                          autoComplete={authMode === "signUp" ? "new-password" : "current-password"}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant={authMode === "signIn" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setAuthMode("signIn")}
+                      >
+                        Sign in
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={authMode === "signUp" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setAuthMode("signUp")}
+                      >
+                        Sign up
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => void handleAuthSubmit()}
+                        disabled={isAuthSubmitting}
+                        className="bg-[#FF4500] text-white hover:bg-foreground hover:text-background"
+                      >
+                        {isAuthSubmitting ? "Submitting..." : authMode === "signUp" ? "Create account" : "Continue"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {authMessage ? (
+                  <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+                    [{authMessage}]
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="space-y-1">
               <Label htmlFor="api-key">OpenRouter_API_Key</Label>
               <Input
                 id="api-key"
@@ -333,8 +543,22 @@ function SetupPage() {
                 autoComplete="off"
               />
               <p className="pt-1 font-mono text-[10px] text-muted-foreground tracking-[0.02em]">
-                Used only in server memory for this debate. Not persisted.
+                Optional if you have a saved account key. Provide one here to override for this run.
               </p>
+              {isAuthenticated ? (
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void handleSaveAccountKey()}
+                    disabled={!apiKey.trim()}
+                  >
+                    Save current key to account
+                  </Button>
+                </div>
+              ) : null}
+              </div>
             </div>
           </section>
 
