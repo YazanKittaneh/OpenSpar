@@ -14,12 +14,12 @@ export async function POST(
   try {
     const { id } = await params;
     const action = await req.json();
+    const convex = getConvexHttpClient();
 
     if (!action || !validActions.includes(action.type)) {
       return NextResponse.json({ error: "Invalid action type" }, { status: 400 });
     }
 
-    const convex = getConvexHttpClient();
     const success = await convex.mutation(api.actions.processUserAction, {
       debateId: id as never,
       action,

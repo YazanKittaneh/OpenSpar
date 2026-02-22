@@ -11,17 +11,15 @@ afterEach(() => {
 describe("env accessors", () => {
   it("gets convex env", () => {
     process.env.CONVEX_DEPLOYMENT_URL = "https://example.convex.cloud";
-    process.env.NEXT_PUBLIC_CONVEX_URL = "https://example.convex.cloud";
 
     const env = getConvexEnv();
     expect(env.CONVEX_DEPLOYMENT_URL).toContain("convex.cloud");
   });
 
   it("throws when convex url env is missing", () => {
-    process.env.CONVEX_DEPLOYMENT_URL = "https://example.convex.cloud";
-    delete process.env.NEXT_PUBLIC_CONVEX_URL;
+    delete process.env.CONVEX_DEPLOYMENT_URL;
     expect(() => getConvexEnv()).toThrowError(
-      "Missing required environment variable: NEXT_PUBLIC_CONVEX_URL",
+      "Missing required environment variable: CONVEX_DEPLOYMENT_URL",
     );
   });
 });

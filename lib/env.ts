@@ -11,6 +11,5 @@ function requireEnv(
 export function getConvexEnv() {
   return {
     CONVEX_DEPLOYMENT_URL: requireEnv("CONVEX_DEPLOYMENT_URL"),
-    NEXT_PUBLIC_CONVEX_URL: requireEnv("NEXT_PUBLIC_CONVEX_URL"),
   };
 }
