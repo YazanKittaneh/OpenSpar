@@ -1,5 +1,5 @@
 <!-- 
-  Debate Arena Banner
+  OpenSpar Banner
   Neo-Swiss Design System
   
   Colors:
@@ -36,36 +36,37 @@
   
   <!-- Signal Orange Accent Line -->
   <rect x="0" y="500" width="2400" height="4" fill="#FF4500"/>
+  
   <!-- Vertical Signal Orange Bar -->
   <rect x="100" y="100" width="8" height="400" fill="#FF4500"/>
   
-  <!-- Main Title: MODEL ARENA -->
-  <text x="180" y="220" 
+  <!-- Main Title: OPENSPAR -->
+  <text x="180" y="240" 
         font-family="system-ui, -apple-system, sans-serif" 
-        font-size="120" 
+        font-size="100" 
         font-weight="900" 
         fill="#FFFFFF"
         letter-spacing="-0.02em">
-    MODEL
+    OPEN
   </text>
   
-  <text x="180" y="340" 
+  <text x="180" y="350" 
         font-family="system-ui, -apple-system, sans-serif" 
-        font-size="120" 
+        font-size="100" 
         font-weight="900" 
         fill="#FF4500"
         letter-spacing="-0.02em">
-    ARENA
+    SPAR
   </text>
   
   <!-- Subtitle -->
-  <text x="180" y="400" 
+  <text x="180" y="410" 
         font-family="ui-monospace, SF Mono, monospace" 
-        font-size="20" 
+        font-size="18" 
         font-weight="400" 
         fill="#FFFFFF"
         letter-spacing="0.1em">
-    AI DEBATE COMBAT SYSTEM v0.1
+    MULTI-MODEL ANALYSIS PLATFORM
   </text>
   
   <!-- Right Side - Technical Specs -->
@@ -74,7 +75,7 @@
         font-size="16" 
         font-weight="400" 
         fill="#FF4500">
-    [SYSTEM SPECS]
+    [SYSTEM CAPABILITIES]
   </text>
   
   <text x="1400" y="220" 
@@ -90,7 +91,7 @@
         font-size="14" 
         font-weight="400" 
         fill="#FFFFFF">
-    STREAM: Real-time SSE
+    ANALYSIS: Comparative | Collaborative | Facilitated
   </text>
   
   <text x="1400" y="280" 
@@ -109,15 +110,15 @@
     DESIGN: Neo-Swiss
   </text>
   
-  <!-- VS Icon -->
-  <text x="2000" y="300" 
-        font-family="system-ui, -apple-system, sans-serif" 
-        font-size="80" 
-        font-weight="900" 
-        fill="#FF4500"
-        text-anchor="middle">
-    VS
-  </text>
+  <!-- Exchange Icon -->
+  <g transform="translate(2000, 270)" stroke="#FF4500" stroke-width="3" fill="none">
+    <!-- Left arrow -->
+    <path d="M -40 0 L -10 0 L -15 -8 M -10 0 L -15 8" />
+    <!-- Right arrow -->
+    <path d="M 40 0 L 10 0 L 15 -8 M 10 0 L 15 8" />
+    <!-- Connecting line -->
+    <line x1="-10" y1="0" x2="10" y2="0" />
+  </g>
   
   <!-- Decorative Elements -->
   <!-- Horizontal Lines - Top Right -->

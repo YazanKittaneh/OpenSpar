@@ -1,11 +1,11 @@
 <div align="center">
 
 <!-- BANNER - Replace with your own banner image -->
-<a href="https://debate-arena.vercel.app">
-  <img src="public/banner.png" alt="Debate Arena - AI Model Combat" width="100%">
+<a href="https://openspar.vercel.app">
+  <img src="public/banner.png" alt="OpenSpar - AI Model Analysis Platform" width="100%">
 </a>
 
-<h3>🥊 Watch AI Models Battle It Out in Real-Time 🥊</h3>
+<h3>🔬 Compare, Analyze & Synthesize with Multiple AI Models</h3>
 
 <p>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js 16"></a>
@@ -23,47 +23,42 @@
 
 ---
 
-## 🎭 What is Debate Arena?
+## 🔍 What is OpenSpar?
 
-**Debate Arena** is an open-source platform where AI models engage in structured debates on any topic you choose. Watch Claude face off against GPT-4, or pit Gemini against Llama in a battle of wits—all in real-time with a stunning industrial interface.
+**OpenSpar** is an open-source platform for **comparative AI analysis**. Run structured dialogue sessions between multiple language models to explore reasoning patterns, compare approaches, and synthesize insights—all in real-time with a stunning analytical interface.
 
-Built for **AI enthusiasts**, **researchers**, and **curious minds** who want to:
-- 🧪 **Benchmark models** against each other on specific reasoning tasks
-- 🎓 **Study debate dynamics** and argumentation patterns
-- 🎪 **Entertain and educate** with AI-vs-AI showdowns
-- 🔬 **Explore emergent behaviors** when LLMs interact
+Built for **AI researchers**, **engineers**, and **curious minds** who want to:
+- 🧪 **Benchmark reasoning** across different models on the same task
+- 🔍 **Analyze thought patterns** and observe how models construct arguments
+- 🤝 **Study collaborative dynamics** when AIs build on each other's ideas
+- 📊 **Compare outputs side-by-side** for evaluation and testing
 
-> *"Watching two AIs debate is like peeking into the collective unconscious of machine learning—fascinating, unpredictable, and surprisingly insightful."*
+> *"Watching two models reason together reveals not just *what* they know, but *how* they think. It's like having a window into different cognitive architectures."*
 
 ## ✨ Features
 
-### 🥊 **Model Combat System**
+### 🔬 **Multi-Model Analysis**
 - **6+ Leading Models**: Claude 3.5 Sonnet, Claude 3 Opus, GPT-4, GPT-4 Turbo, Gemini Pro, Llama 3 70B
-- **Custom Objectives**: Give each debater secret goals and strategies
-- **Fair Matchmaking**: Each model gets equal turns, no interruptions
+- **Custom Directives**: Give each model specific goals or constraints to test
+- **Fair Comparison**: Each model gets equal turns, synchronized interaction
 
 ### ⚡ **Real-Time Streaming**
-- **Live Arguments**: Watch responses stream in real-time via Server-Sent Events
-- **Typing Indicators**: See when models are "thinking"
-- **Instant Updates**: No page refreshes—pure reactive magic
+- **Live Reasoning**: Watch responses stream in real-time via Server-Sent Events
+- **Processing Indicators**: See when models are formulating responses
+- **Instant Updates**: No page refreshes—pure reactive observation
 
-### 🎮 **Moderator Controls**
+### 🎛️ **Session Controls**
 | Control | Action |
 |---------|--------|
-| ⏸️ Pause/Resume | Freeze the debate at any moment |
-| ⏭️ Skip Turn | Jump to the next debater |
-| 💬 Inject Comment | Add moderator commentary mid-debate |
-| 🏁 Force End | Declare a winner manually |
+| ⏸️ Pause/Resume | Pause the session to review at any moment |
+| ⏭️ Skip Turn | Move to the next model's response |
+| 💬 Add Context | Inject clarifying questions or new information |
+| 🏁 Conclude | End session and view synthesis |
 
-### 🏆 **Intelligent Resolution**
-- **Self-Terminate**: Models decide when consensus is reached
-- **User Decides**: You vote on the winner
-- **AI Judge**: A third model evaluates and picks the victor
-
-### 🧠 **Smart Detection**
-- ✅ **Agreement Detection**: Automatically ends when models converge
-- 🔄 **Circular Argument Detection**: Stops redundant back-and-forth
-- ⏰ **Turn Limits**: Configurable max rounds (2-50)
+### 🧠 **Intelligent Synthesis**
+- **Auto-Convergence**: Detects when models reach shared understanding
+- **Circular Detection**: Identifies when the exchange becomes redundant
+- **Session Limits**: Configurable interaction rounds (2-50)
 
 ### 🎨 **Neo-Swiss Design**
 An industrial, architectural UI aesthetic inspired by Swiss design principles:
@@ -85,8 +80,8 @@ An industrial, architectural UI aesthetic inspired by Swiss design principles:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/debate-arena.git
-cd debate-arena
+git clone https://github.com/yourusername/openspar.git
+cd openspar
 
 # 2. Install dependencies
 npm install
@@ -115,15 +110,15 @@ npx convex dev
 # 6. Start the development server
 npm run dev
 
-# 7. Open http://localhost:3000 and start debating! 🎉
+# 7. Open http://localhost:3000 and start analyzing! 🎉
 ```
 
 ## 🎮 How It Works
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   You       │────▶│  Debate      │────▶│  Convex     │
-│  (Setup)    │     │   Arena      │     │  Backend    │
+│   You       │────▶│   OpenSpar   │────▶│  Convex     │
+│  (Setup)    │     │  Platform    │     │  Backend    │
 └─────────────┘     └──────────────┘     └─────────────┘
                            │                      │
                            ▼                      ▼
@@ -133,22 +128,22 @@ npm run dev
                     └──────────────┘      └──────────────┘
 ```
 
-### The Debate Flow
+### The Session Flow
 
-1. **Setup**: Choose your topic, pick two models, set winning conditions
-2. **Stream**: Watch arguments flow in real-time as models respond to each other
-3. **Moderate**: Pause, skip, or inject comments as needed
-4. **Resolve**: Debate ends based on your chosen condition
-5. **Review**: Analyze the complete argument history
+1. **Setup**: Choose your topic/prompt, select two models, set session parameters
+2. **Observe**: Watch reasoning flow in real-time as models respond to each other
+3. **Guide**: Pause, redirect, or add context as needed
+4. **Conclude**: Session ends based on your chosen criteria
+5. **Review**: Analyze the complete reasoning exchange
 
 ### Data Architecture
 
 | Entity | Description |
 |--------|-------------|
-| **Debate** | Top-level container with topic, status, config |
-| **Turn** | Individual argument with model, content, timestamp |
-| **Events** | Real-time stream updates (typing, complete, error) |
-| **Controls** | Moderator actions queued and processed |
+| **Session** | Top-level container with topic, status, configuration |
+| **Exchange** | Individual response with model, content, timestamp |
+| **Events** | Real-time stream updates (processing, complete, error) |
+| **Controls** | Researcher actions queued and processed |
 
 ## 🤖 Supported Models
 
@@ -156,12 +151,12 @@ All models powered by [OpenRouter](https://openrouter.ai)—bringing the best AI
 
 | Model | Provider | Best For |
 |-------|----------|----------|
-| **Claude 3.5 Sonnet** | Anthropic | Balanced reasoning, nuanced arguments |
-| **Claude 3 Opus** | Anthropic | Complex debates, deep analysis |
-| **GPT-4** | OpenAI | Structured arguments, consistency |
+| **Claude 3.5 Sonnet** | Anthropic | Balanced reasoning, nuanced analysis |
+| **Claude 3 Opus** | Anthropic | Complex synthesis, deep exploration |
+| **GPT-4** | OpenAI | Structured reasoning, consistency |
 | **GPT-4 Turbo** | OpenAI | Speed + quality balance |
-| **Gemini Pro** | Google | Multi-modal reasoning, creativity |
-| **Llama 3 70B** | Meta | Open-source powerhouse |
+| **Gemini Pro** | Google | Multi-modal reasoning, creative analysis |
+| **Llama 3 70B** | Meta | Open-source research, local testing |
 
 > 💡 **Want more models?** OpenRouter supports 100+ models. Just add them to `lib/config.ts`!
 
@@ -171,8 +166,8 @@ All models powered by [OpenRouter](https://openrouter.ai)—bringing the best AI
 
 <div align="center">
   <!-- Replace with your actual banner.png after creating it -->
-  <img src="docs/images/banner-preview.png" alt="Debate Arena Banner" width="800">
-  <p><em>Bold Neo-Swiss aesthetic with Signal Orange accents</em></p>
+  <img src="docs/images/banner-preview.png" alt="OpenSpar Banner" width="800">
+  <p><em>Clean Neo-Swiss aesthetic with Signal Orange accents</em></p>
 </div>
 
 ---
@@ -182,41 +177,41 @@ All models powered by [OpenRouter](https://openrouter.ai)—bringing the best AI
 #### 1. Setup Interface
 <div align="center">
   <img src="docs/images/setup-interface.png" alt="Setup Interface" width="800">
-  <p><em>Configure your debate: choose models, set topic, define win conditions</em></p>
+  <p><em>Configure your analysis: select models, define prompt, set session mode</em></p>
 </div>
 
 **Key Features:**
-- 🎛️ **Model Selection**: Pick from 6+ leading LLMs via dropdown
-- ⚔️ **VS Divider**: Visual separation between combatants
-- 🎯 **Win Conditions**: Self-terminate, User decides, or AI Judge
-- 🔐 **API Key Input**: Secure, server-memory-only key handling
+- 🎛️ **Model Selection**: Choose from 6+ leading LLMs
+- ↔️ **Comparison View**: Side-by-side model configuration
+- 🎯 **Session Modes**: Collaborative, Comparative, or Facilitated
+- 🔐 **API Key Input**: Secure, server-memory-only handling
 
 ---
 
-#### 2. Live Debate Arena
+#### 2. Live Analysis Session
 <div align="center">
-  <img src="docs/images/debate-arena.png" alt="Live Debate" width="800">
-  <p><em>Real-time streaming with typing indicators and argument history</em></p>
+  <img src="docs/images/analysis-session.png" alt="Live Analysis" width="800">
+  <p><em>Real-time streaming with processing indicators and response history</em></p>
 </div>
 
 **Key Features:**
 - 📡 **Real-time Streaming**: SSE-powered live updates
-- 🎤 **Current Speaker**: Highlighted in Signal Orange (#FF4500)
-- ⏸️ **Moderator Controls**: Pause, skip, inject comments
-- 📜 **Scrollable History**: Complete debate transcript
+- 🎤 **Active Model**: Current responder highlighted in Signal Orange (#FF4500)
+- ⏸️ **Session Controls**: Pause, redirect, add context
+- 📜 **Scrollable History**: Complete reasoning exchange
 
 ---
 
-#### 3. Winner Announcement
+#### 3. Session Conclusion
 <div align="center">
-  <img src="docs/images/winner-banner.png" alt="Winner Banner" width="800">
-  <p><em>Bold victory announcement with reasoning and next steps</em></p>
+  <img src="docs/images/session-conclusion.png" alt="Session Conclusion" width="800">
+  <p><em>Synthesis view with key insights and next steps</em></p>
 </div>
 
 **Key Features:**
-- 🏆 **Winner Display**: Large, bold typography
-- 📝 **Victory Reasoning**: Why the winner was chosen
-- 🔄 **New Debate**: Quick link to start another match
+- 📊 **Convergence Analysis**: Where models agreed/diverged
+- 📝 **Synthesis Summary**: Combined insights from the exchange
+- 🔄 **New Session**: Quick link to start another analysis
 
 ---
 
@@ -245,7 +240,7 @@ All models powered by [OpenRouter](https://openrouter.ai)—bringing the best AI
 
 <div align="center">
   <img src="docs/images/mobile-view.png" alt="Mobile Responsive" width="400">
-  <p><em>Fully responsive design for debates on the go</em></p>
+  <p><em>Fully responsive design for analysis on the go</em></p>
 </div>
 
 ---
@@ -254,7 +249,7 @@ All models powered by [OpenRouter](https://openrouter.ai)—bringing the best AI
 
 <div align="center">
   
-[![Debate Arena Demo](docs/images/video-thumbnail.png)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+[![OpenSpar Demo](docs/images/video-thumbnail.png)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
 
 *[▶️ Click to watch the demo video]*
 
@@ -264,10 +259,10 @@ All models powered by [OpenRouter](https://openrouter.ai)—bringing the best AI
 
 > 📤 **Want to add your screenshots?** 
 > 
-> 1. Take screenshots of your debates
+> 1. Take screenshots of your sessions
 > 2. Save them to `docs/images/` directory
 > 3. Submit a PR with your images
-> 4. We'll feature the best debates!
+> 4. We'll feature interesting model comparisons!
 
 ## 🛠️ Development
 
@@ -284,17 +279,17 @@ npm test         # Run Vitest tests
 ### Project Structure
 
 ```
-debate-arena/
+openspar/
 ├── app/                 # Next.js App Router
 │   ├── page.tsx        # Setup interface
-│   └── debate/[id]/    # Live debate view
+│   └── session/[id]/   # Live analysis view
 ├── components/          # React components
-│   ├── debate-card.tsx # Argument display
-│   ├── control-bar.tsx # Moderator controls
-│   └── winner-banner.tsx
+│   ├── exchange-card.tsx     # Response display
+│   ├── control-bar.tsx       # Session controls
+│   └── synthesis-banner.tsx  # Conclusion view
 ├── convex/             # Backend (Convex)
 │   ├── schema.ts       # Data models
-│   ├── debates.ts      # Queries & mutations
+│   ├── sessions.ts     # Queries & mutations
 │   └── cron.ts         # Cleanup jobs
 ├── lib/                # Utilities
 │   ├── config.ts       # Models & constants
@@ -318,30 +313,30 @@ Key principles:
 
 ## 🗺️ Roadmap
 
-### Phase 1: Core Experience ✅
-- [x] Real-time debate streaming
+### Phase 1: Core Analysis ✅
+- [x] Real-time session streaming
 - [x] Multi-model support via OpenRouter
-- [x] Moderator controls
+- [x] Session controls and moderation
 - [x] Intelligent completion detection
 - [x] Neo-Swiss design system
 
-### Phase 2: Enhanced Debating 🚧
-- [ ] **Tournament Mode**: Multi-round elimination brackets
-- [ ] **Debate Templates**: Common topics and formats
-- [ ] **Rich Text**: Markdown support in arguments
-- [ ] **Image Arguments**: Multi-modal debates
+### Phase 2: Enhanced Analysis 🚧
+- [ ] **Batch Mode**: Run multiple prompt variations
+- [ ] **Analysis Templates**: Common research scenarios
+- [ ] **Rich Responses**: Markdown, code, structured output
+- [ ] **Multi-Modal**: Image and document analysis
 
-### Phase 3: Community & Analytics 📊
-- [ ] **Leaderboards**: Model win rates, ELO rankings
-- [ ] **Debate History**: Searchable archive
-- [ ] **Analytics Dashboard**: Argument patterns, engagement
-- [ ] **Sharing**: Export debates, social media cards
+### Phase 3: Research Tools 📊
+- [ ] **Comparison Matrix**: Side-by-side feature analysis
+- [ ] **Session Archive**: Searchable history
+- [ ] **Analytics Dashboard**: Pattern detection, engagement metrics
+- [ ] **Export Tools**: PDF reports, data extraction
 
 ### Phase 4: Advanced Features 🔮
-- [ ] **Custom Endpoints**: Bring your own API keys/models
-- [ ] **Team Debates**: 2v2, 3v3 formats
-- [ ] **AI Judging**: More sophisticated evaluation
-- [ ] **Debate Bots**: Automated tournament runners
+- [ ] **Custom Endpoints**: Bring your own models
+- [ ] **Multi-Model Sessions**: 3+ models simultaneously
+- [ ] **Facilitated Synthesis**: AI-assisted convergence
+- [ ] **Automated Testing**: Regression testing across models
 
 ## ☁️ Deployment (Vercel)
 
@@ -374,7 +369,7 @@ npx vercel --prod
 
 ### 4. Validate
 
-- ✅ Debate creation works
+- ✅ Session creation works
 - ✅ Live stream updates appear
 - ✅ User controls work
 - ✅ Convex functions run without errors
@@ -390,7 +385,7 @@ We love contributions from the AI community! Whether you're fixing bugs, adding 
 ```bash
 # 1. Fork the repo
 # 2. Clone your fork
-git clone https://github.com/YOUR_USERNAME/debate-arena.git
+git clone https://github.com/YOUR_USERNAME/openspar.git
 
 # 3. Create a feature branch
 git checkout -b feature/amazing-feature
@@ -422,8 +417,8 @@ This project follows the [Contributor Covenant](https://www.contributor-covenant
 
 ## 🔒 Privacy & Security
 
-- 🔑 **API Keys**: Your OpenRouter key is **never stored**. It's kept in server memory only for the duration of the debate.
-- 🗑️ **Auto-Cleanup**: Debates are automatically deleted after 24 hours via Convex cron jobs.
+- 🔑 **API Keys**: Your OpenRouter key is **never stored**. It's kept in server memory only for the duration of the session.
+- 🗑️ **Auto-Cleanup**: Sessions are automatically deleted after 24 hours via Convex cron jobs.
 - 🏠 **Self-Hostable**: Run it entirely on your own infrastructure if preferred.
 
 ---
@@ -432,7 +427,7 @@ This project follows the [Contributor Covenant](https://www.contributor-covenant
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-Feel free to use Debate Arena for personal projects, research, or commercial applications. We'd love to hear what you build!
+Feel free to use OpenSpar for personal projects, research, or commercial applications. We'd love to hear what you build!
 
 ---
 
@@ -452,18 +447,18 @@ Built with incredible open-source tools and services:
 ## 💬 Community
 
 - 🐦 **Twitter/X**: [@yourhandle](https://twitter.com/yourhandle) - Updates and highlights
-- 💻 **GitHub Discussions**: Share debates, request features, ask questions
+- 💻 **GitHub Discussions**: Share findings, request features, ask questions
 - 🐛 **Issues**: Bug reports and feature requests
 
 ---
 
 <div align="center">
 
-### Ready to watch AIs debate?
+### Ready to explore AI reasoning?
 
-**[🚀 Launch Debate Arena](http://localhost:3000)**
+**[🚀 Launch OpenSpar](http://localhost:3000)**
 
-Made with ❤️ by AI enthusiasts, for AI enthusiasts
+Made with ❤️ by AI researchers, for AI researchers
 
 ⭐ Star this repo if you find it useful! ⭐
 
@@ -480,6 +475,6 @@ Made with ❤️ by AI enthusiasts, for AI enthusiasts
   npx convex codegen
   ```
 
-- **Cleanup Cron**: Automatically removes old debates (defined in `convex/cron.ts`)
+- **Cleanup Cron**: Automatically removes old sessions (defined in `convex/cron.ts`)
 
 - **API Key Handling**: Keys are stored in server memory only—never persisted to database
