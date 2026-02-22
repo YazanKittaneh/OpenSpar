@@ -1,7 +1,6 @@
 "use client";
 
 import { Component, ErrorInfo, ReactNode } from "react";
-import { AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -32,17 +31,26 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-zinc-100">
-            <div className="max-w-md rounded-2xl border border-zinc-800 bg-zinc-900/70 p-6 text-center">
-              <AlertCircle className="mx-auto mb-3 h-12 w-12 text-red-500" />
-              <h1 className="mb-2 text-2xl font-bold">Something went wrong</h1>
-              <p className="mb-4 text-zinc-400">{this.state.error?.message}</p>
-              <div className="flex justify-center gap-2">
-                <Button onClick={() => this.setState({ hasError: false, error: undefined })}>
+          <div className="min-h-screen bg-background text-foreground p-6">
+            <div className="mx-auto max-w-lg pt-20">
+              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#FF4500]">
+                System_Error
+              </span>
+              <h1 className="mt-4 text-3xl font-black tracking-tight">
+                Something went wrong
+              </h1>
+              <div className="mt-3 h-px w-16 bg-[#FF4500]" />
+              <p className="mt-4 text-sm text-muted-foreground">
+                {this.state.error?.message}
+              </p>
+              <div className="mt-8 flex gap-3">
+                <Button
+                  onClick={() => this.setState({ hasError: false, error: undefined })}
+                >
                   Retry
                 </Button>
                 <Button variant="outline" onClick={() => window.location.reload()}>
-                  Reload Page
+                  Reload
                 </Button>
               </div>
             </div>

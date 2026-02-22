@@ -35,26 +35,62 @@ export function ControlBar({
   const [comment, setComment] = useState("");
   const [open, setOpen] = useState(false);
 
+  const disabled = isCompleted || isSubmitting;
+
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm" onClick={() => void onPause()} disabled={isCompleted || isSubmitting}>
-        {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+      {/* Pause / Resume */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => void onPause()}
+        disabled={disabled}
+        className="font-mono"
+      >
+        {isPaused ? (
+          <>
+            <Play className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">RESUME</span>
+          </>
+        ) : (
+          <>
+            <Pause className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">PAUSE</span>
+          </>
+        )}
       </Button>
 
-      <Button variant="outline" size="sm" onClick={() => void onSkip()} disabled={isCompleted || isSubmitting}>
-        <SkipForward className="h-4 w-4" />
+      {/* Skip */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => void onSkip()}
+        disabled={disabled}
+        className="font-mono"
+      >
+        <SkipForward className="h-4 w-4 sm:mr-1" />
+        <span className="hidden sm:inline">SKIP</span>
       </Button>
 
+      {/* Inject Comment */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm" disabled={isCompleted || isSubmitting}>
-            <MessageSquare className="h-4 w-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={disabled}
+            className="font-mono"
+          >
+            <MessageSquare className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">INJECT</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="border-zinc-800 bg-zinc-950 text-zinc-100">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Inject Comment</DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogTitle className="font-mono uppercase tracking-[0.05em]">
+              Inject Comment
+            </DialogTitle>
+            <DialogDescription>
               Add moderator guidance for the current debate turn.
             </DialogDescription>
           </DialogHeader>
@@ -62,7 +98,7 @@ export function ControlBar({
             value={comment}
             onChange={(event) => setComment(event.target.value)}
             placeholder="Example: Focus on empirical evidence only."
-            className="min-h-28"
+            className="min-h-28 rounded-none"
           />
           <DialogFooter>
             <Button

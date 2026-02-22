@@ -9,8 +9,6 @@ import { DebateLog } from "@/components/debate-log";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { WinnerBanner } from "@/components/winner-banner";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Speaker, Turn } from "@/lib/types";
 
 type DebateApi = {
@@ -261,26 +259,60 @@ function DebatePageContent() {
 
   if (!debate) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-300">
-        Loading debate...
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="swiss-loader" />
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+            Loading debate...
+          </span>
+        </div>
       </div>
     );
   }
 
+  const statusLabel = (() => {
+    if (isCompleted) return "COMPLETED";
+    if (isPaused) return "PAUSED";
+    if (connectionStatus === "connected") return "LIVE";
+    if (connectionStatus === "reconnecting") return "RECONNECTING";
+    if (connectionStatus === "error") return "ERROR";
+    return "CONNECTING";
+  })();
+
+  const statusColor = (() => {
+    if (statusLabel === "LIVE") return "text-[#FF4500]";
+    if (statusLabel === "ERROR") return "text-[#FF4500]";
+    if (statusLabel === "COMPLETED") return "text-foreground";
+    return "text-muted-foreground";
+  })();
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <h1 className="text-lg font-bold sm:text-xl">{debate.topic}</h1>
-            <p className="text-sm text-zinc-400">
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Connection bar */}
+      {connectionStatus === "connecting" || connectionStatus === "reconnecting" ? (
+        <div className="swiss-loader" />
+      ) : null}
+
+      {/* Header */}
+      <header className="sticky top-0 z-20 border-b border-foreground/10 bg-background">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3 mb-1">
+              <span className={`font-mono text-[10px] uppercase tracking-[0.08em] ${statusColor}`}>
+                [{statusLabel}]
+              </span>
+              <span className="font-mono text-[10px] text-muted-foreground tracking-[0.05em]">
+                {turns.length} turns
+              </span>
+            </div>
+            <h1 className="text-base font-bold tracking-tight sm:text-lg truncate">
+              {debate.topic}
+            </h1>
+            <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground mt-1">
               {debate.debaterA.name} vs {debate.debaterB.name}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-zinc-700 text-zinc-300">
-              {connectionStatus}
-            </Badge>
+          <div className="flex items-center gap-3 shrink-0">
             <ControlBar
               isPaused={isPaused}
               isCompleted={Boolean(isCompleted)}
@@ -299,13 +331,17 @@ function DebatePageContent() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+      <main className="mx-auto w-full max-w-6xl space-y-8 px-6 py-8">
+        {/* Error banner */}
         {errorBanner ? (
-          <Card className="border-red-900/70 bg-red-950/40">
-            <CardContent className="py-3 text-sm text-red-200">{errorBanner}</CardContent>
-          </Card>
+          <div className="border border-[#FF4500] p-4 animate-fade-in">
+            <p className="font-mono text-[11px] uppercase tracking-[0.05em] text-[#FF4500]">
+              [ERROR: {errorBanner.toUpperCase()}]
+            </p>
+          </div>
         ) : null}
 
+        {/* Winner banner */}
         {isCompleted ? (
           <WinnerBanner
             winner={debate.winner ?? null}
@@ -314,7 +350,8 @@ function DebatePageContent() {
           />
         ) : null}
 
-        <div className="grid gap-4 lg:grid-cols-2">
+        {/* Active debate cards */}
+        <div className="grid gap-6 lg:grid-cols-2">
           <DebateCard
             name={debate.debaterA.name}
             isCurrentSpeaker={currentSpeaker === "A"}
@@ -329,8 +366,10 @@ function DebatePageContent() {
           />
         </div>
 
-        <Separator className="bg-zinc-800" />
+        {/* Divider */}
+        <div className="h-px w-full bg-foreground/10" />
 
+        {/* Transcript */}
         <DebateLog turns={turns} getDebaterName={getDebaterName} />
       </main>
     </div>

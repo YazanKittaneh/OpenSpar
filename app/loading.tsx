@@ -1,21 +1,22 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-
 export default function Loading() {
   return (
-    <main className="min-h-screen bg-zinc-950 p-6">
-      <div className="mx-auto w-full max-w-5xl space-y-4">
-        <Skeleton className="mx-auto h-12 w-72" />
-        <Card className="border-zinc-800 bg-zinc-900/60">
-          <CardHeader>
-            <Skeleton className="h-6 w-64" />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-44 w-full" />
-            <Skeleton className="h-12 w-full" />
-          </CardContent>
-        </Card>
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto w-full max-w-6xl px-6 py-20">
+        <div className="mb-8">
+          <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+            Loading
+          </span>
+        </div>
+        <div className="swiss-loader mb-4" />
+        <div className="space-y-8 mt-12">
+          <div className="h-12 w-64 bg-foreground/5 animate-pulse" />
+          <div className="h-px w-24 bg-foreground/10" />
+          <div className="h-32 w-full bg-foreground/5 animate-pulse" />
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div className="h-48 border border-foreground/5 animate-pulse" />
+            <div className="h-48 border border-foreground/5 animate-pulse" />
+          </div>
+        </div>
       </div>
     </main>
   );

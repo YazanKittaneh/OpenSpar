@@ -1,7 +1,4 @@
 import Link from "next/link";
-import { Trophy } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 
 interface WinnerBannerProps {
   winner: "A" | "B" | "draw" | null;
@@ -10,22 +7,33 @@ interface WinnerBannerProps {
 }
 
 export function WinnerBanner({ winner, winnerName, reason }: WinnerBannerProps) {
+  const displayName = winner === "draw" ? "DRAW" : winnerName;
+
   return (
-    <div className="animate-fade-in mb-8 text-center">
-      <div className="inline-flex items-center gap-4 rounded-2xl bg-gradient-to-r from-yellow-700 via-orange-600 to-amber-500 px-6 py-5 shadow-xl">
-        <Trophy className="h-10 w-10 text-yellow-100" />
-        <div className="text-left">
-          <div className="text-xs uppercase tracking-wider text-yellow-100/90">Winner</div>
-          <div className="text-2xl font-bold text-white">{winner === "draw" ? "Draw" : winnerName}</div>
-          <div className="text-sm text-yellow-100">{reason}</div>
+    <div className="animate-fade-in mb-8">
+      <div className="border-l-2 border-[#FF4500] pl-6 py-2">
+        <span className="block font-mono text-[10px] uppercase tracking-[0.08em] text-[#FF4500]">
+          Result
+        </span>
+
+        <h2 className="mt-2 text-4xl font-black tracking-tight text-foreground leading-[1.1]">
+          {displayName}
+        </h2>
+
+        <div className="mt-2 h-[2px] w-16 bg-[#FF4500]" />
+
+        <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+          {reason}
+        </p>
+
+        <div className="mt-6">
+          <Link
+            href="/"
+            className="inline-block font-mono text-xs uppercase tracking-[0.05em] text-foreground hover:text-[#FF4500] focus-visible:outline-2 focus-visible:outline-[#FF4500] focus-visible:outline-offset-2"
+          >
+            {">"} New Debate
+          </Link>
         </div>
-      </div>
-      <div className="mt-5">
-        <Link href="/">
-          <Button variant="outline" size="lg">
-            Start New Debate
-          </Button>
-        </Link>
       </div>
     </div>
   );

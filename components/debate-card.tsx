@@ -1,8 +1,3 @@
-import { Bot } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 interface DebateCardProps {
   name: string;
   isCurrentSpeaker: boolean;
@@ -17,34 +12,41 @@ export function DebateCard({
   content,
 }: DebateCardProps) {
   return (
-    <Card
-      className={`border-zinc-800 bg-zinc-900/60 transition ${
-        isCurrentSpeaker ? "ring-2 ring-orange-500/80" : ""
-      }`}
+    <div
+      className={[
+        "border bg-[#0A0A0A] p-0 rounded-[2px] transition-none",
+        isCurrentSpeaker
+          ? "border-[#FF4500] border-l-2"
+          : "border-foreground/10",
+      ].join(" ")}
     >
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-zinc-100">
-          <Bot className="h-5 w-5 text-orange-400" />
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <span className="text-foreground font-bold text-base leading-[1.1]">
           {name}
-          {isCurrentSpeaker ? (
-            <Badge className="ml-auto animate-pulse bg-orange-500 text-black hover:bg-orange-500">
-              Speaking...
-            </Badge>
-          ) : null}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </span>
+        {isCurrentSpeaker ? (
+          <span className="font-mono text-[11px] uppercase tracking-[0.05em] text-[#FF4500]">
+            SPEAKING
+          </span>
+        ) : null}
+      </div>
+
+      {/* Content */}
+      <div className="px-4 pb-4 pt-0">
         {isTyping || content ? (
-          <div className="whitespace-pre-wrap text-zinc-200">
+          <div className="whitespace-pre-wrap text-foreground text-sm leading-[1.5]">
             {content}
-            {isTyping ? <span className="typing-cursor ml-1 inline-block">|</span> : null}
+            {isTyping ? (
+              <span className="typing-cursor ml-1 inline-block">|</span>
+            ) : null}
           </div>
         ) : (
-          <p className="italic text-zinc-500">
-            {isCurrentSpeaker ? "Thinking..." : "Waiting..."}
-          </p>
+          <span className="font-mono text-[11px] uppercase tracking-[0.05em] text-muted-foreground">
+            {isCurrentSpeaker ? "[PROCESSING]" : "[STANDBY]"}
+          </span>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
