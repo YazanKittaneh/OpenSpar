@@ -98,7 +98,12 @@ function SetupPage() {
         password,
       });
       setPassword("");
-      setAuthMessage(authMode === "signUp" ? "Account created. You are now signed in." : "Signed in.");
+      if (authMode === "signUp") {
+        setAuthMode("signIn");
+        setAuthMessage("Account created. You are now signed in.");
+      } else {
+        setAuthMessage("Signed in.");
+      }
     } catch (err) {
       setAuthMessage(err instanceof Error ? err.message : "Authentication failed.");
     } finally {
@@ -337,7 +342,7 @@ function SetupPage() {
                         size="sm"
                         onClick={() => setAuthMode("signUp")}
                       >
-                        Sign up
+                        Create account
                       </Button>
                       <Button
                         type="submit"
