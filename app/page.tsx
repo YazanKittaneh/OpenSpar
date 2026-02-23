@@ -245,6 +245,153 @@ function SetupPage() {
         {/* Main form area */}
         <div className="stagger-children space-y-16">
 
+          {/* ACCESS SECTION */}
+          <section>
+            <div className="mb-8 flex items-center gap-3">
+              <span className="font-mono text-[10px] text-[#FF4500] tracking-[0.08em]">00</span>
+              <span className="font-mono text-[11px] uppercase tracking-[0.05em] text-muted-foreground">Account + Key</span>
+              <div className="h-px flex-1 bg-foreground/10" />
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="space-y-2 border border-foreground/10 p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+                  Account [optional]
+                </p>
+
+                {!isAuthLoading && isAuthenticated ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Signed in. Save one OpenRouter key and reuse it across devices.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void handleSignOut()}
+                        disabled={isAuthSubmitting}
+                      >
+                        Sign out
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void handleDeleteAccountKey()}
+                        disabled={isAuthSubmitting || !savedKeyMask}
+                      >
+                        Remove saved key
+                      </Button>
+                    </div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+                      {isSavedKeyLoading
+                        ? "Saved key: [LOADING]"
+                        : savedKeyMask
+                          ? `Saved key: [${savedKeyMask}]`
+                          : "Saved key: [NONE]"}
+                    </p>
+                  </div>
+                ) : (
+                  <form
+                    className="space-y-3"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      void handleAuthSubmit();
+                    }}
+                  >
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="account-email">Email</Label>
+                        <Input
+                          id="account-email"
+                          type="email"
+                          value={email}
+                          onChange={(event) => setEmail(event.target.value)}
+                          autoComplete="email"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="account-password">Password</Label>
+                        <Input
+                          id="account-password"
+                          type="password"
+                          value={password}
+                          onChange={(event) => setPassword(event.target.value)}
+                          autoComplete={authMode === "signUp" ? "new-password" : "current-password"}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant={authMode === "signIn" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setAuthMode("signIn")}
+                      >
+                        Sign in
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={authMode === "signUp" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setAuthMode("signUp")}
+                      >
+                        Sign up
+                      </Button>
+                      <Button
+                        type="submit"
+                        size="sm"
+                        disabled={isAuthSubmitting}
+                        className="bg-[#FF4500] text-white hover:bg-foreground hover:text-background"
+                      >
+                        {isAuthSubmitting ? "Submitting..." : authMode === "signUp" ? "Create account" : "Sign in"}
+                      </Button>
+                    </div>
+                  </form>
+                )}
+                {authMessage ? (
+                  <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+                    [{authMessage}]
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="space-y-2 border border-foreground/10 p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+                  OpenRouter Key
+                </p>
+                <div className="space-y-1">
+                  <Label htmlFor="api-key">OpenRouter_API_Key</Label>
+                  <Input
+                    id="api-key"
+                    type="password"
+                    value={apiKey}
+                    onChange={(event) => setApiKey(event.target.value)}
+                    placeholder="sk-or-v1-..."
+                    autoComplete="off"
+                  />
+                  <p className="pt-1 font-mono text-[10px] text-muted-foreground tracking-[0.02em]">
+                    Optional if you have a saved account key. Provide one here to override for this run.
+                  </p>
+                  {isAuthenticated ? (
+                    <div className="pt-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void handleSaveAccountKey()}
+                        disabled={!apiKey.trim()}
+                      >
+                        Save current key to account
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* TOPIC SECTION */}
           <section>
             <div className="mb-6 flex items-center gap-3">
@@ -421,143 +568,6 @@ function SetupPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-          </section>
-
-          {/* API KEY SECTION */}
-          <section>
-            <div className="mb-8 flex items-center gap-3">
-              <span className="font-mono text-[10px] text-[#FF4500] tracking-[0.08em]">04</span>
-              <span className="font-mono text-[11px] uppercase tracking-[0.05em] text-muted-foreground">Authentication</span>
-              <div className="h-px flex-1 bg-foreground/10" />
-            </div>
-
-            <div className="max-w-lg space-y-6">
-              <div className="space-y-2 border border-foreground/10 p-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
-                  Account [optional]
-                </p>
-
-                {!isAuthLoading && isAuthenticated ? (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">
-                      Signed in. Save one OpenRouter key and reuse it across devices.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => void handleSignOut()}
-                        disabled={isAuthSubmitting}
-                      >
-                        Sign out
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => void handleDeleteAccountKey()}
-                        disabled={isAuthSubmitting || !savedKeyMask}
-                      >
-                        Remove saved key
-                      </Button>
-                    </div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
-                      {isSavedKeyLoading
-                        ? "Saved key: [LOADING]"
-                        : savedKeyMask
-                          ? `Saved key: [${savedKeyMask}]`
-                          : "Saved key: [NONE]"}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="space-y-1">
-                        <Label htmlFor="account-email">Email</Label>
-                        <Input
-                          id="account-email"
-                          type="email"
-                          value={email}
-                          onChange={(event) => setEmail(event.target.value)}
-                          autoComplete="email"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="account-password">Password</Label>
-                        <Input
-                          id="account-password"
-                          type="password"
-                          value={password}
-                          onChange={(event) => setPassword(event.target.value)}
-                          autoComplete={authMode === "signUp" ? "new-password" : "current-password"}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button
-                        type="button"
-                        variant={authMode === "signIn" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setAuthMode("signIn")}
-                      >
-                        Sign in
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={authMode === "signUp" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setAuthMode("signUp")}
-                      >
-                        Sign up
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => void handleAuthSubmit()}
-                        disabled={isAuthSubmitting}
-                        className="bg-[#FF4500] text-white hover:bg-foreground hover:text-background"
-                      >
-                        {isAuthSubmitting ? "Submitting..." : authMode === "signUp" ? "Create account" : "Continue"}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                {authMessage ? (
-                  <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
-                    [{authMessage}]
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="space-y-1">
-              <Label htmlFor="api-key">OpenRouter_API_Key</Label>
-              <Input
-                id="api-key"
-                type="password"
-                value={apiKey}
-                onChange={(event) => setApiKey(event.target.value)}
-                placeholder="sk-or-v1-..."
-                autoComplete="off"
-              />
-              <p className="pt-1 font-mono text-[10px] text-muted-foreground tracking-[0.02em]">
-                Optional if you have a saved account key. Provide one here to override for this run.
-              </p>
-              {isAuthenticated ? (
-                <div className="pt-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => void handleSaveAccountKey()}
-                    disabled={!apiKey.trim()}
-                  >
-                    Save current key to account
-                  </Button>
-                </div>
-              ) : null}
               </div>
             </div>
           </section>
