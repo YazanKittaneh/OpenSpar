@@ -59,6 +59,7 @@ export default defineSchema({
       v.literal("resume"),
       v.literal("skip"),
       v.literal("inject"),
+      v.literal("stop"),
     ),
     payload: v.optional(v.string()),
     createdAt: v.number(),

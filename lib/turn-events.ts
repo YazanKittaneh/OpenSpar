@@ -14,6 +14,37 @@ function normalizeReasoning(reasoning?: string): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+function extractReasoningFromContent(content?: string): string | undefined {
+  if (typeof content !== "string") return undefined;
+
+  const rationaleMatches = [
+    ...content.matchAll(/<rationale_summary>([\s\S]*?)<\/rationale_summary>/g),
+  ];
+  const reasoningMatches = [...content.matchAll(/<reasoning>([\s\S]*?)<\/reasoning>/g)];
+
+  const matches = rationaleMatches.length > 0 ? rationaleMatches : reasoningMatches;
+  if (matches.length === 0) return undefined;
+
+  const combined = matches
+    .map((match) => (match[1] ?? "").trim())
+    .filter((text) => text.length > 0)
+    .join("\n\n");
+
+  return combined.length > 0 ? combined : undefined;
+}
+
+function sanitizeVisibleContent(content?: string): string {
+  if (typeof content !== "string") return "";
+
+  return content
+    .replace(/<rationale_summary>[\s\S]*?<\/rationale_summary>/g, "")
+    .replace(/<rationale_summary>[\s\S]*$/g, "")
+    .replace(/<\/rationale_summary>/g, "")
+    .replace(/<reasoning>[\s\S]*?<\/reasoning>/g, "")
+    .replace(/<reasoning>[\s\S]*$/g, "")
+    .replace(/<\/reasoning>/g, "");
+}
+
 export function normalizeCompletedTurn(
   payload: TurnCompletedPayload,
   fallbackNumber: number,
@@ -35,11 +66,13 @@ export function normalizeCompletedTurn(
       ? payload.timestamp
       : fallbackTimestampMs;
 
+  const extractedReasoning = extractReasoningFromContent(payload.fullContent);
+
   return {
     number: resolvedTurnNumber,
     speaker: payload.speaker,
-    content: payload.fullContent ?? "",
-    reasoning: normalizeReasoning(payload.reasoning),
+    content: sanitizeVisibleContent(payload.fullContent),
+    reasoning: normalizeReasoning(payload.reasoning) ?? extractedReasoning,
     timestamp: new Date(resolvedTimestamp),
   };
 }

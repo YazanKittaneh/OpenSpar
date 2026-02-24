@@ -14,6 +14,7 @@ export const processUserAction = mutation({
         v.literal("resume"),
         v.literal("skip"),
         v.literal("inject"),
+        v.literal("stop"),
       ),
       payload: v.optional(v.string()),
     }),
@@ -65,6 +66,22 @@ export const processUserAction = mutation({
             speaker: debate.currentSpeaker,
             content: `[User]: ${args.action.payload}`,
             timestamp: now,
+          });
+        }
+        break;
+      }
+      case "stop": {
+        if (debate.status !== "completed" && debate.status !== "aborted") {
+          await ctx.db.patch(args.debateId, { status: "aborted", updatedAt: now });
+          await ctx.db.insert("debateEvents", {
+            debateId: args.debateId,
+            sequence: createSequence(),
+            type: "debate.completed",
+            payload: JSON.stringify({
+              winner: null,
+              reason: "Stopped by user",
+            }),
+            createdAt: now,
           });
         }
         break;

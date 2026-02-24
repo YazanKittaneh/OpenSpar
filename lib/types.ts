@@ -40,7 +40,7 @@ export interface Debate {
   updatedAt: Date;
 }
 
-export type UserActionType = "pause" | "resume" | "skip" | "inject";
+export type UserActionType = "pause" | "resume" | "skip" | "inject" | "stop";
 
 export interface UserAction {
   type: UserActionType;

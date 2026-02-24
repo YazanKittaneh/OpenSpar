@@ -6,6 +6,8 @@ import { checkForAgreement, checkForCircularArgument } from "@/lib/debate-intell
 import { streamDebateResponse } from "@/lib/llm";
 import { Turn } from "@/lib/types";
 
+const STREAM_STATUS_CHECK_INTERVAL_MS = 300;
+
 export const runDebateTurn = action({
   args: { debateId: v.id("debates"), apiKey: v.string() },
   handler: async (ctx, args) => {
@@ -54,6 +56,7 @@ export const runDebateTurn = action({
     let streamedContent = "";
     let result: { content: string; reasoning?: string } = { content: "" };
     const turnNumber = turnCount + 1;
+    let interruptedByStatusChange = false;
 
     await ctx.runMutation(api.events.appendEvent, {
       debateId: args.debateId,
@@ -70,6 +73,7 @@ export const runDebateTurn = action({
         mappedTurns,
         opponent.objective,
       );
+      let nextStatusCheckAt = 0;
 
       while (true) {
         const next = await stream.next();
@@ -83,8 +87,28 @@ export const runDebateTurn = action({
           type: "token",
           payload: JSON.stringify({ speaker, content: next.value }),
         });
+
+        const now = Date.now();
+        if (now >= nextStatusCheckAt) {
+          nextStatusCheckAt = now + STREAM_STATUS_CHECK_INTERVAL_MS;
+          const latestDebate = await ctx.runQuery(api.debates.getDebate, {
+            id: args.debateId,
+          });
+          if (!latestDebate || latestDebate.status !== "running") {
+            interruptedByStatusChange = true;
+            await stream.return({ content: streamedContent, reasoning: result.reasoning });
+            break;
+          }
+        }
       }
     } catch (error) {
+      const latestDebate = await ctx.runQuery(api.debates.getDebate, {
+        id: args.debateId,
+      });
+      if (!latestDebate || latestDebate.status !== "running") {
+        return false;
+      }
+
       await ctx.runMutation(api.events.appendEvent, {
         debateId: args.debateId,
         type: "error",
@@ -105,6 +129,17 @@ export const runDebateTurn = action({
       });
 
       return true;
+    }
+
+    if (interruptedByStatusChange) {
+      return false;
+    }
+
+    const latestDebate = await ctx.runQuery(api.debates.getDebate, {
+      id: args.debateId,
+    });
+    if (!latestDebate || latestDebate.status !== "running") {
+      return false;
     }
 
     const finalContent = result.content || streamedContent;

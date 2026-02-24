@@ -7,7 +7,7 @@ import { getConvexHttpClient } from "@/lib/convex";
 import { getDebateApiKey, setDebateApiKey } from "@/lib/debate-keys";
 import { isConvexIdError } from "@/lib/errors";
 
-const validActions = ["pause", "resume", "skip", "inject"] as const;
+const validActions = ["pause", "resume", "skip", "inject", "stop"] as const;
 
 export async function POST(
   req: Request,

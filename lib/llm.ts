@@ -4,6 +4,16 @@ import { DebaterConfig, Speaker, Turn } from "@/lib/types";
 
 const REQUEST_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 2;
+const PRIVATE_TAGS = [
+  {
+    name: "rationale_summary",
+    open: "<rationale_summary>",
+    close: "</rationale_summary>",
+  },
+  { name: "reasoning", open: "<reasoning>", close: "</reasoning>" },
+] as const;
+
+type PrivateTagName = (typeof PRIVATE_TAGS)[number]["name"];
 
 function getClient(apiKey: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -46,8 +56,11 @@ Rules:
 1. Make persuasive, well-reasoned arguments.
 2. Address points your opponent raised.
 3. Be respectful but firm in your position.
-4. You may use <reasoning>tags for your private thinking</reasoning>.
-5. Keep responses concise (2-4 paragraphs).`;
+4. Your visible response MUST be plain debate text only.
+5. End every response with <rationale_summary>...</rationale_summary>.
+6. Keep rationale summary to 1-2 short sentences (high-level justification only).
+7. Do not output <reasoning> tags or private chain-of-thought.
+8. Keep responses concise (2-4 paragraphs).`;
 
   const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
     { role: "system", content: systemPrompt },
@@ -63,40 +76,89 @@ Rules:
   return messages;
 }
 
-function parseReasoningChunk(
+function longestSuffixPrefixLength(text: string, token: string): number {
+  const max = Math.min(text.length, token.length - 1);
+  for (let len = max; len > 0; len -= 1) {
+    if (text.endsWith(token.slice(0, len))) {
+      return len;
+    }
+  }
+  return 0;
+}
+
+export function parseReasoningChunk(
   chunkText: string,
-  state: { inReasoning: boolean; remainder: string },
+  state: { activeTag: PrivateTagName | null; remainder: string },
 ) {
   const merged = state.remainder + chunkText;
-  let i = 0;
+  let cursor = 0;
   let visible = "";
-  let hidden = "";
+  let hiddenReasoning = "";
+  let hiddenRationaleSummary = "";
+  state.remainder = "";
 
-  while (i < merged.length) {
-    const openIdx = merged.indexOf("<reasoning>", i);
-    const closeIdx = merged.indexOf("</reasoning>", i);
+  const findNextOpenTag = (fromIndex: number) => {
+    let result:
+      | { index: number; tag: (typeof PRIVATE_TAGS)[number] }
+      | null = null;
 
-    if (!state.inReasoning && openIdx === -1) {
-      visible += merged.slice(i);
-      i = merged.length;
-    } else if (state.inReasoning && closeIdx === -1) {
-      hidden += merged.slice(i);
-      i = merged.length;
-    } else if (!state.inReasoning && openIdx !== -1 && (closeIdx === -1 || openIdx < closeIdx)) {
-      visible += merged.slice(i, openIdx);
-      i = openIdx + "<reasoning>".length;
-      state.inReasoning = true;
-    } else if (state.inReasoning && closeIdx !== -1) {
-      hidden += merged.slice(i, closeIdx);
-      i = closeIdx + "</reasoning>".length;
-      state.inReasoning = false;
+    for (const tag of PRIVATE_TAGS) {
+      const index = merged.indexOf(tag.open, fromIndex);
+      if (index === -1) continue;
+      if (!result || index < result.index) {
+        result = { index, tag };
+      }
+    }
+
+    return result;
+  };
+
+  while (cursor < merged.length) {
+    if (!state.activeTag) {
+      const nextOpenTag = findNextOpenTag(cursor);
+      if (!nextOpenTag) {
+        const tail = merged.slice(cursor);
+        const keep = PRIVATE_TAGS.reduce(
+          (max, tag) => Math.max(max, longestSuffixPrefixLength(tail, tag.open)),
+          0,
+        );
+        visible += tail.slice(0, tail.length - keep);
+        state.remainder = tail.slice(tail.length - keep);
+        cursor = merged.length;
+      } else {
+        visible += merged.slice(cursor, nextOpenTag.index);
+        cursor = nextOpenTag.index + nextOpenTag.tag.open.length;
+        state.activeTag = nextOpenTag.tag.name;
+      }
     } else {
-      break;
+      const activeTag = PRIVATE_TAGS.find((tag) => tag.name === state.activeTag)!;
+      const closeIdx = merged.indexOf(activeTag.close, cursor);
+
+      if (closeIdx === -1) {
+        const tail = merged.slice(cursor);
+        const keep = longestSuffixPrefixLength(tail, activeTag.close);
+        const captured = tail.slice(0, tail.length - keep);
+        if (state.activeTag === "rationale_summary") {
+          hiddenRationaleSummary += captured;
+        } else {
+          hiddenReasoning += captured;
+        }
+        state.remainder = tail.slice(tail.length - keep);
+        cursor = merged.length;
+      } else {
+        const captured = merged.slice(cursor, closeIdx);
+        if (state.activeTag === "rationale_summary") {
+          hiddenRationaleSummary += captured;
+        } else {
+          hiddenReasoning += captured;
+        }
+        cursor = closeIdx + activeTag.close.length;
+        state.activeTag = null;
+      }
     }
   }
 
-  state.remainder = i < merged.length ? merged.slice(i) : "";
-  return { visible, hidden };
+  return { visible, hiddenReasoning, hiddenRationaleSummary };
 }
 
 export async function* streamDebateResponse(
@@ -134,14 +196,22 @@ export async function* streamDebateResponse(
 
       let fullContent = "";
       let fullReasoning = "";
-      const parserState = { inReasoning: false, remainder: "" };
+      let fullRationaleSummary = "";
+      const parserState = {
+        activeTag: null as PrivateTagName | null,
+        remainder: "",
+      };
 
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content ?? "";
         if (!content) continue;
 
-        const { visible, hidden } = parseReasoningChunk(content, parserState);
-        fullReasoning += hidden;
+        const { visible, hiddenReasoning, hiddenRationaleSummary } = parseReasoningChunk(
+          content,
+          parserState,
+        );
+        fullReasoning += hiddenReasoning;
+        fullRationaleSummary += hiddenRationaleSummary;
 
         if (visible) {
           fullContent += visible;
@@ -149,19 +219,18 @@ export async function* streamDebateResponse(
         }
       }
 
-      if (parserState.remainder) {
-        if (parserState.inReasoning) {
-          fullReasoning += parserState.remainder;
-        } else {
-          fullContent += parserState.remainder;
-          yield parserState.remainder;
-        }
-      }
+      // Ignore unfinished tag fragments at stream end to prevent leaking markup.
 
       clearTimeout(timer);
+      const normalizedRationaleSummary = fullRationaleSummary.trim();
+      const normalizedReasoning = fullReasoning.trim();
+
       return {
         content: fullContent.trim(),
-        reasoning: fullReasoning.trim() || undefined,
+        reasoning:
+          normalizedRationaleSummary ||
+          normalizedReasoning ||
+          undefined,
       };
     } catch (error) {
       clearTimeout(timer);

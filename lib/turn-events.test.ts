@@ -58,6 +58,51 @@ describe("normalizeCompletedTurn", () => {
     expect(result?.reasoning).toBeUndefined();
   });
 
+  it("strips reasoning markup from visible content", () => {
+    const result = normalizeCompletedTurn(
+      {
+        speaker: "A",
+        fullContent:
+          "Public intro <reasoning>private notes</reasoning> public outro",
+      },
+      4,
+      1_650_000_000_000,
+    );
+
+    expect(result?.content).toBe("Public intro  public outro");
+    expect(result?.reasoning).toBe("private notes");
+  });
+
+  it("extracts rationale summary markup when present", () => {
+    const result = normalizeCompletedTurn(
+      {
+        speaker: "A",
+        fullContent:
+          "Public intro <rationale_summary>high level summary</rationale_summary> public outro",
+      },
+      6,
+      1_650_000_000_000,
+    );
+
+    expect(result?.content).toBe("Public intro  public outro");
+    expect(result?.reasoning).toBe("high level summary");
+  });
+
+  it("prefers explicit reasoning over extracted markup reasoning", () => {
+    const result = normalizeCompletedTurn(
+      {
+        speaker: "A",
+        fullContent: "<reasoning>tag reasoning</reasoning> visible",
+        reasoning: "payload reasoning",
+      },
+      5,
+      1_650_000_000_000,
+    );
+
+    expect(result?.reasoning).toBe("payload reasoning");
+    expect(result?.content).toBe(" visible");
+  });
+
   it("returns null when speaker is missing", () => {
     const result = normalizeCompletedTurn(
       {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, Pause, Play, SkipForward } from "lucide-react";
+import { MessageSquare, Pause, Play, SkipForward, Square } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ interface ControlBarProps {
   isCompleted: boolean;
   isSubmitting: boolean;
   onPause: () => Promise<void>;
+  onStop: () => Promise<void>;
   onSkip: () => Promise<void>;
   onInject: (comment: string) => Promise<void>;
 }
@@ -29,6 +30,7 @@ export function ControlBar({
   isCompleted,
   isSubmitting,
   onPause,
+  onStop,
   onSkip,
   onInject,
 }: ControlBarProps) {
@@ -58,6 +60,17 @@ export function ControlBar({
             <span className="hidden sm:inline">PAUSE</span>
           </>
         )}
+      </Button>
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => void onStop()}
+        disabled={disabled}
+        className="font-mono border-[#FF4500]/60 text-[#FF4500] hover:bg-[#FF4500]/10 hover:text-[#FF4500]"
+      >
+        <Square className="h-4 w-4 sm:mr-1" />
+        <span className="hidden sm:inline">STOP</span>
       </Button>
 
       {/* Skip */}

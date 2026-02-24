@@ -21,7 +21,7 @@ type DebateApi = {
   debaterB: { name: string };
 };
 
-type ActionType = "pause" | "resume" | "skip" | "inject";
+type ActionType = "pause" | "resume" | "skip" | "inject" | "stop";
 
 type QueuedAction = {
   type: ActionType;
@@ -66,6 +66,7 @@ function DebatePageContent() {
 
   const isCompleted = debate?.status === "completed" || debate?.status === "aborted";
   const isPaused = debate?.status === "paused";
+  const isAborted = debate?.status === "aborted";
 
   const getDebaterName = useCallback(
     (speaker: Speaker) =>
@@ -185,7 +186,17 @@ function DebatePageContent() {
               break;
             }
             case "debate.completed": {
-              setDebate((prev) => (prev ? { ...prev, status: "completed", winner: event.winner ?? undefined } : prev));
+              const reasonText = (event.reason ?? "").toLowerCase();
+              const stopped = reasonText.includes("aborted") || reasonText.includes("stopped");
+              setDebate((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      status: stopped ? "aborted" : "completed",
+                      winner: event.winner ?? undefined,
+                    }
+                  : prev,
+              );
               setWinnerReason(event.reason ?? "Debate completed");
               setTypingSpeaker(null);
               break;
@@ -233,6 +244,11 @@ function DebatePageContent() {
         }
         if (action.type === "resume") {
           setDebate((prev) => (prev ? { ...prev, status: "running" } : prev));
+        }
+        if (action.type === "stop") {
+          setDebate((prev) => (prev ? { ...prev, status: "aborted" } : prev));
+          setTypingSpeaker(null);
+          setStreamingContent({ A: "", B: "" });
         }
       } catch (error) {
         setQueuedActions((prev) => [...prev, action]);
@@ -283,6 +299,7 @@ function DebatePageContent() {
   }, [debate]);
 
   const statusLabel = (() => {
+    if (isAborted) return "STOPPED";
     if (isCompleted) return "COMPLETED";
     if (isPaused) return "PAUSED";
     if (connectionStatus === "connected") return "LIVE";
@@ -293,6 +310,7 @@ function DebatePageContent() {
 
   const statusColor = (() => {
     if (statusLabel === "LIVE") return "text-[#FF4500]";
+    if (statusLabel === "STOPPED") return "text-[#FF4500]";
     if (statusLabel === "ERROR") return "text-[#FF4500]";
     if (statusLabel === "COMPLETED") return "text-foreground";
     return "text-muted-foreground";
@@ -356,6 +374,7 @@ function DebatePageContent() {
                     : { type: "pause" },
                 )
               }
+              onStop={() => sendAction({ type: "stop" })}
               onSkip={() => sendAction({ type: "skip" })}
               onInject={(comment) => sendAction({ type: "inject", payload: comment })}
             />
