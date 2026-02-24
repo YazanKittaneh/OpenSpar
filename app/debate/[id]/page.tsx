@@ -3,12 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 
+import { ChatColumn } from "@/components/chat-column";
 import { ControlBar } from "@/components/control-bar";
-import { DebateCard } from "@/components/debate-card";
-import { DebateLog } from "@/components/debate-log";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { ReasoningColumn } from "@/components/reasoning-column";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WinnerBanner } from "@/components/winner-banner";
+import { normalizeCompletedTurn, TurnCompletedPayload } from "@/lib/turn-events";
 import { Speaker, Turn } from "@/lib/types";
 
 type DebateApi = {
@@ -28,6 +29,21 @@ type QueuedAction = {
   apiKey?: string;
 };
 
+type MobileTab = "chat" | "A" | "B";
+
+type StreamEvent = {
+  type: string;
+  speaker?: Speaker;
+  turnNumber?: number;
+  content?: string;
+  fullContent?: string;
+  reasoning?: string;
+  timestamp?: number;
+  winner?: "A" | "B" | "draw" | null;
+  reason?: string;
+  message?: string;
+};
+
 function DebatePageContent() {
   const params = useParams<{ id: string }>();
   const debateId = params?.id;
@@ -38,8 +54,8 @@ function DebatePageContent() {
     A: "",
     B: "",
   });
-  const [currentSpeaker, setCurrentSpeaker] = useState<Speaker | null>(null);
   const [typingSpeaker, setTypingSpeaker] = useState<Speaker | null>(null);
+  const [mobileTab, setMobileTab] = useState<MobileTab>("chat");
   const [connectionStatus, setConnectionStatus] = useState<"connecting" | "connected" | "reconnecting" | "error">("connecting");
   const [winnerReason, setWinnerReason] = useState("");
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
@@ -109,54 +125,69 @@ function DebatePageContent() {
 
       source.onmessage = (message) => {
         try {
-          const event = JSON.parse(message.data) as {
-            type: string;
-            speaker?: Speaker;
-            turnNumber?: number;
-            content?: string;
-            fullContent?: string;
-            winner?: "A" | "B" | "draw" | null;
-            reason?: string;
-            message?: string;
-          };
+          const event = JSON.parse(message.data) as StreamEvent;
 
           switch (event.type) {
             case "turn.started": {
-              if (!event.speaker) break;
-              setCurrentSpeaker(event.speaker);
-              setTypingSpeaker(event.speaker);
-              setStreamingContent((prev) => ({ ...prev, [event.speaker!]: "" }));
+              const speaker = event.speaker;
+              if (!speaker) break;
+              setTypingSpeaker(speaker);
+              setStreamingContent((prev) => ({ ...prev, [speaker]: "" }));
               break;
             }
             case "token": {
-              if (!event.speaker) break;
-              setTypingSpeaker(event.speaker);
+              const speaker = event.speaker;
+              if (!speaker) break;
+              setTypingSpeaker(speaker);
               setStreamingContent((prev) => ({
                 ...prev,
-                [event.speaker!]: `${prev[event.speaker!]}${event.content ?? ""}`,
+                [speaker]: `${prev[speaker]}${event.content ?? ""}`,
               }));
               break;
             }
             case "turn.completed": {
-              if (!event.speaker) break;
-              setTurns((prev) => [
-                ...prev,
-                {
-                  number: prev.length + 1,
-                  speaker: event.speaker!,
-                  content: event.fullContent ?? "",
-                  timestamp: new Date(),
-                },
-              ]);
+              const payload = event as TurnCompletedPayload;
+              setTurns((prev) => {
+                const normalized = normalizeCompletedTurn(payload, prev.length + 1);
+                if (!normalized) return prev;
+
+                const hasExplicitTurnNumber =
+                  typeof event.turnNumber === "number" &&
+                  Number.isInteger(event.turnNumber) &&
+                  event.turnNumber > 0;
+
+                const existingIndex = hasExplicitTurnNumber
+                  ? prev.findIndex((turn) => turn.number === normalized.number)
+                  : prev.findIndex(
+                      (turn) =>
+                        turn.speaker === normalized.speaker &&
+                        turn.content === normalized.content,
+                    );
+
+                if (existingIndex >= 0) {
+                  const next = [...prev];
+                  next[existingIndex] = {
+                    ...next[existingIndex],
+                    ...normalized,
+                    reasoning: normalized.reasoning ?? next[existingIndex].reasoning,
+                  };
+                  return next.sort((a, b) => a.number - b.number);
+                }
+
+                return [...prev, normalized].sort((a, b) => a.number - b.number);
+              });
+
+              const speaker = event.speaker;
+              if (speaker) {
+                setStreamingContent((prev) => ({ ...prev, [speaker]: "" }));
+              }
               setTypingSpeaker(null);
-              setStreamingContent((prev) => ({ ...prev, [event.speaker!]: "" }));
               break;
             }
             case "debate.completed": {
               setDebate((prev) => (prev ? { ...prev, status: "completed", winner: event.winner ?? undefined } : prev));
               setWinnerReason(event.reason ?? "Debate completed");
               setTypingSpeaker(null);
-              setCurrentSpeaker(null);
               break;
             }
             case "action.processed":
@@ -251,19 +282,6 @@ function DebatePageContent() {
     return "Draw";
   }, [debate]);
 
-  if (!debate) {
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <div className="swiss-loader" />
-        <div className="mx-auto max-w-6xl px-6 py-12">
-          <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
-            Loading debate...
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   const statusLabel = (() => {
     if (isCompleted) return "COMPLETED";
     if (isPaused) return "PAUSED";
@@ -280,18 +298,37 @@ function DebatePageContent() {
     return "text-muted-foreground";
   })();
 
+  if (!debate) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="swiss-loader" />
+        <div className="mx-auto max-w-[1400px] px-6 py-12">
+          <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+            Loading debate...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  const mobileTabButtonClass = (tab: MobileTab) =>
+    [
+      "h-9 border px-3 font-mono text-[10px] uppercase tracking-[0.05em]",
+      mobileTab === tab
+        ? "border-[#FF4500] text-[#FF4500]"
+        : "border-foreground/10 text-muted-foreground",
+    ].join(" ");
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Connection bar */}
       {connectionStatus === "connecting" || connectionStatus === "reconnecting" ? (
         <div className="swiss-loader" />
       ) : null}
 
-      {/* Header */}
       <header className="sticky top-0 z-20 border-b border-foreground/10 bg-background">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-3 mb-1">
+            <div className="mb-1 flex items-center gap-3">
               <span className={`font-mono text-[10px] uppercase tracking-[0.08em] ${statusColor}`}>
                 [{statusLabel}]
               </span>
@@ -299,14 +336,14 @@ function DebatePageContent() {
                 {turns.length} turns
               </span>
             </div>
-            <h1 className="text-base font-bold tracking-tight sm:text-lg truncate">
+            <h1 className="truncate text-base font-bold tracking-tight sm:text-lg">
               {debate.topic}
             </h1>
-            <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground mt-1">
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
               {debate.debaterA.name} vs {debate.debaterB.name}
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex shrink-0 items-center gap-3">
             <ThemeToggle />
             <ControlBar
               isPaused={isPaused}
@@ -326,17 +363,15 @@ function DebatePageContent() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl space-y-8 px-6 py-8">
-        {/* Error banner */}
+      <main className="mx-auto w-full max-w-[1400px] space-y-8 px-6 py-8">
         {errorBanner ? (
-          <div className="border border-[#FF4500] p-4 animate-fade-in">
+          <div className="animate-fade-in border border-[#FF4500] p-4">
             <p className="font-mono text-[11px] uppercase tracking-[0.05em] text-[#FF4500]">
               [ERROR: {errorBanner.toUpperCase()}]
             </p>
           </div>
         ) : null}
 
-        {/* Winner banner */}
         {isCompleted ? (
           <WinnerBanner
             winner={debate.winner ?? null}
@@ -345,27 +380,85 @@ function DebatePageContent() {
           />
         ) : null}
 
-        {/* Active debate cards */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <DebateCard
-            name={debate.debaterA.name}
-            isCurrentSpeaker={currentSpeaker === "A"}
-            isTyping={typingSpeaker === "A"}
-            content={streamingContent.A}
-          />
-          <DebateCard
-            name={debate.debaterB.name}
-            isCurrentSpeaker={currentSpeaker === "B"}
-            isTyping={typingSpeaker === "B"}
-            content={streamingContent.B}
-          />
+        <div className="space-y-4 lg:hidden">
+          <div className="grid grid-cols-3 gap-2 border border-foreground/10 p-2">
+            <button
+              type="button"
+              className={mobileTabButtonClass("chat")}
+              onClick={() => setMobileTab("chat")}
+            >
+              CHAT
+            </button>
+            <button
+              type="button"
+              className={mobileTabButtonClass("A")}
+              onClick={() => setMobileTab("A")}
+            >
+              MODEL 1
+            </button>
+            <button
+              type="button"
+              className={mobileTabButtonClass("B")}
+              onClick={() => setMobileTab("B")}
+            >
+              MODEL 2
+            </button>
+          </div>
+
+          {mobileTab === "chat" ? (
+            <ChatColumn
+              turns={turns}
+              typingSpeaker={typingSpeaker}
+              streamingContent={streamingContent}
+              getDebaterName={getDebaterName}
+            />
+          ) : null}
+
+          {mobileTab === "A" ? (
+            <ReasoningColumn
+              speaker="A"
+              title="MODEL 1 REASONING"
+              turns={turns}
+              typingSpeaker={typingSpeaker}
+              getDebaterName={getDebaterName}
+            />
+          ) : null}
+
+          {mobileTab === "B" ? (
+            <ReasoningColumn
+              speaker="B"
+              title="MODEL 2 REASONING"
+              turns={turns}
+              typingSpeaker={typingSpeaker}
+              getDebaterName={getDebaterName}
+            />
+          ) : null}
         </div>
 
-        {/* Divider */}
-        <div className="h-px w-full bg-foreground/10" />
+        <div className="hidden gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)]">
+          <ReasoningColumn
+            speaker="A"
+            title="MODEL 1 REASONING"
+            turns={turns}
+            typingSpeaker={typingSpeaker}
+            getDebaterName={getDebaterName}
+          />
 
-        {/* Transcript */}
-        <DebateLog turns={turns} getDebaterName={getDebaterName} />
+          <ChatColumn
+            turns={turns}
+            typingSpeaker={typingSpeaker}
+            streamingContent={streamingContent}
+            getDebaterName={getDebaterName}
+          />
+
+          <ReasoningColumn
+            speaker="B"
+            title="MODEL 2 REASONING"
+            turns={turns}
+            typingSpeaker={typingSpeaker}
+            getDebaterName={getDebaterName}
+          />
+        </div>
       </main>
     </div>
   );

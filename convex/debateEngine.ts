@@ -109,6 +109,8 @@ export const runDebateTurn = action({
 
     const finalContent = result.content || streamedContent;
 
+    const completionTimestamp = Date.now();
+
     await ctx.runMutation(api.turns.addTurn, {
       debateId: args.debateId,
       number: turnNumber,
@@ -119,7 +121,13 @@ export const runDebateTurn = action({
     await ctx.runMutation(api.events.appendEvent, {
       debateId: args.debateId,
       type: "turn.completed",
-      payload: JSON.stringify({ speaker, fullContent: finalContent }),
+      payload: JSON.stringify({
+        speaker,
+        fullContent: finalContent,
+        reasoning: result.reasoning,
+        turnNumber,
+        timestamp: completionTimestamp,
+      }),
     });
 
     const withCurrentTurn: Turn[] = [

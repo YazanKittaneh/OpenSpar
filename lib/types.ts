@@ -51,7 +51,14 @@ export type SSEEvent =
   | { type: "debate.started"; debate: Debate }
   | { type: "turn.started"; speaker: Speaker; turnNumber: number }
   | { type: "token"; speaker: Speaker; content: string }
-  | { type: "turn.completed"; speaker: Speaker; fullContent: string }
+  | {
+      type: "turn.completed";
+      speaker: Speaker;
+      fullContent: string;
+      reasoning?: string;
+      turnNumber: number;
+      timestamp: number;
+    }
   | {
       type: "debate.completed";
       winner: Speaker | "draw" | null;
