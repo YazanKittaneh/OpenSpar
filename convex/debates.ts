@@ -33,12 +33,16 @@ export const createDebate = mutation({
       name: v.string(),
       systemPrompt: v.optional(v.string()),
       objective: v.optional(v.string()),
+      reasoningEnabled: v.optional(v.boolean()),
+      reasoningToggleable: v.optional(v.boolean()),
     }),
     debaterB: v.object({
       model: v.string(),
       name: v.string(),
       systemPrompt: v.optional(v.string()),
       objective: v.optional(v.string()),
+      reasoningEnabled: v.optional(v.boolean()),
+      reasoningToggleable: v.optional(v.boolean()),
     }),
   },
   handler: async (ctx, args) => {

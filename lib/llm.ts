@@ -32,6 +32,15 @@ export interface StreamResponse {
   reasoning?: string;
 }
 
+type OpenRouterReasoningParam = {
+  enabled: boolean;
+};
+
+export type OpenRouterChatCompletionRequest =
+  OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming & {
+    reasoning?: OpenRouterReasoningParam;
+  };
+
 export function buildMessages(
   speaker: Speaker,
   debater: DebaterConfig,
@@ -74,6 +83,28 @@ Rules:
   messages.push({ role: "user", content: "Your turn to respond." });
 
   return messages;
+}
+
+export function buildOpenRouterChatCompletionRequest(
+  debater: DebaterConfig,
+  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>,
+): OpenRouterChatCompletionRequest {
+  const request: OpenRouterChatCompletionRequest = {
+    model: debater.model,
+    messages,
+    stream: true,
+    temperature: 0.7,
+    max_tokens: 1000,
+  };
+
+  if (
+    debater.reasoningToggleable &&
+    typeof debater.reasoningEnabled === "boolean"
+  ) {
+    request.reasoning = { enabled: debater.reasoningEnabled };
+  }
+
+  return request;
 }
 
 function longestSuffixPrefixLength(text: string, token: string): number {
@@ -186,13 +217,11 @@ export async function* streamDebateResponse(
 
     try {
       const openai = getClient(apiKey);
-      const stream = await openai.chat.completions.create({
-        model: debater.model,
-        messages,
-        stream: true,
-        temperature: 0.7,
-        max_tokens: 1000,
-      }, { signal: abortController.signal });
+      const request = buildOpenRouterChatCompletionRequest(debater, messages);
+      const stream = await openai.chat.completions.create(
+        request as OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming,
+        { signal: abortController.signal },
+      );
 
       let fullContent = "";
       let fullReasoning = "";

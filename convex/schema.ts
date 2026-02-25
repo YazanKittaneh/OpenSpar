@@ -19,12 +19,16 @@ export default defineSchema({
       name: v.string(),
       systemPrompt: v.optional(v.string()),
       objective: v.optional(v.string()),
+      reasoningEnabled: v.optional(v.boolean()),
+      reasoningToggleable: v.optional(v.boolean()),
     }),
     debaterB: v.object({
       model: v.string(),
       name: v.string(),
       systemPrompt: v.optional(v.string()),
       objective: v.optional(v.string()),
+      reasoningEnabled: v.optional(v.boolean()),
+      reasoningToggleable: v.optional(v.boolean()),
     }),
     status: v.union(
       v.literal("created"),

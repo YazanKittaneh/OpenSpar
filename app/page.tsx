@@ -6,6 +6,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth } from "convex/react";
 
 import { ErrorBoundary } from "@/components/error-boundary";
+import { ModelPicker } from "@/components/model-picker";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,12 +15,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { CONFIG, WINNING_CONDITIONS } from "@/lib/config";
+import { findModelById, getCuratedModels, mergeModelCatalogs, ModelCatalogEntry } from "@/lib/models";
 import { WinningCondition } from "@/lib/types";
 
 type DebaterForm = {
   model: string;
   name: string;
   objective?: string;
+  reasoningEnabled?: boolean;
+  reasoningToggleable?: boolean;
 };
 
 function SetupPage() {
@@ -28,15 +32,23 @@ function SetupPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
 
   const [topic, setTopic] = useState("");
+  const [curatedModels] = useState(() => getCuratedModels());
+  const [fetchedModels, setFetchedModels] = useState<ModelCatalogEntry[]>([]);
+  const [isModelCatalogLoading, setIsModelCatalogLoading] = useState(false);
+  const [modelCatalogError, setModelCatalogError] = useState<string | null>(null);
   const [debaterA, setDebaterA] = useState<DebaterForm>({
     model: CONFIG.DEFAULT_MODELS[0].id,
     name: "Debater A",
     objective: "",
+    reasoningEnabled: false,
+    reasoningToggleable: CONFIG.DEFAULT_MODELS[0].reasoningToggleable,
   });
   const [debaterB, setDebaterB] = useState<DebaterForm>({
     model: CONFIG.DEFAULT_MODELS[2].id,
     name: "Debater B",
     objective: "",
+    reasoningEnabled: false,
+    reasoningToggleable: CONFIG.DEFAULT_MODELS[2].reasoningToggleable,
   });
   const [maxTurns, setMaxTurns] = useState<number>(CONFIG.MAX_TURNS_DEFAULT);
   const [winningCondition, setWinningCondition] = useState<WinningCondition>("self-terminate");
@@ -56,6 +68,55 @@ function SetupPage() {
     if (topic.trim().length < 10) return "Topic should be at least 10 characters.";
     return null;
   }, [topic]);
+
+  const modelCatalog = useMemo(
+    () => mergeModelCatalogs(curatedModels, fetchedModels),
+    [curatedModels, fetchedModels],
+  );
+
+  const selectedModelA = useMemo(
+    () => findModelById(modelCatalog, debaterA.model),
+    [modelCatalog, debaterA.model],
+  );
+  const selectedModelB = useMemo(
+    () => findModelById(modelCatalog, debaterB.model),
+    [modelCatalog, debaterB.model],
+  );
+  const aReasoningToggleable = Boolean(selectedModelA?.reasoningToggleable);
+  const bReasoningToggleable = Boolean(selectedModelB?.reasoningToggleable);
+
+  useEffect(() => {
+    const loadModelCatalog = async () => {
+      try {
+        setIsModelCatalogLoading(true);
+        setModelCatalogError(null);
+        const response = await fetch("/api/models");
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          throw new Error(body.error ?? "Failed to load model catalog.");
+        }
+        const data = (await response.json()) as { models?: ModelCatalogEntry[] };
+        setFetchedModels(Array.isArray(data.models) ? data.models : []);
+      } catch (err) {
+        setModelCatalogError(err instanceof Error ? err.message : "Failed to load model catalog.");
+      } finally {
+        setIsModelCatalogLoading(false);
+      }
+    };
+
+    void loadModelCatalog();
+  }, []);
+
+  const getReasoningHelperText = (model: ModelCatalogEntry | undefined) => {
+    if (!model) return "Reasoning support unknown for this model.";
+    if (model.reasoningToggleable) {
+      return "Runtime reasoning toggle supported by OpenRouter for this model.";
+    }
+    if (model.reasoningCapable) {
+      return "Reasoning-capable model, but OpenRouter does not expose a toggle here.";
+    }
+    return "No reasoning toggle support detected for this model.";
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -189,10 +250,16 @@ function SetupPage() {
           debaterA: {
             ...debaterA,
             objective: debaterA.objective?.trim() || undefined,
+            reasoningEnabled:
+              aReasoningToggleable ? Boolean(debaterA.reasoningEnabled) : undefined,
+            reasoningToggleable: aReasoningToggleable ? true : undefined,
           },
           debaterB: {
             ...debaterB,
             objective: debaterB.objective?.trim() || undefined,
+            reasoningEnabled:
+              bReasoningToggleable ? Boolean(debaterB.reasoningEnabled) : undefined,
+            reasoningToggleable: bReasoningToggleable ? true : undefined,
           },
           maxTurns: clampedTurns,
           winningCondition,
@@ -439,21 +506,53 @@ function SetupPage() {
 
                 <div className="space-y-1">
                   <Label htmlFor="a-model">Model</Label>
-                  <Select
+                  <ModelPicker
+                    id="a-model"
+                    label="Choose Side A Model"
                     value={debaterA.model}
-                    onValueChange={(value) => setDebaterA((prev) => ({ ...prev, model: value }))}
-                  >
-                    <SelectTrigger id="a-model">
-                      <SelectValue placeholder="Choose model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CONFIG.DEFAULT_MODELS.map((model) => (
-                        <SelectItem key={model.id} value={model.id}>
-                          {model.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    models={modelCatalog}
+                    isLoading={isModelCatalogLoading}
+                    loadError={modelCatalogError}
+                    onValueChange={(value) =>
+                      setDebaterA((prev) => {
+                        const selected = findModelById(modelCatalog, value);
+                        return {
+                          ...prev,
+                          model: value,
+                          reasoningToggleable: selected?.reasoningToggleable ?? false,
+                          reasoningEnabled:
+                            selected?.reasoningToggleable
+                              ? prev.reasoningEnabled ?? false
+                              : false,
+                        };
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2 border border-foreground/10 p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <Label htmlFor="a-reasoning">Reasoning</Label>
+                    <Button
+                      id="a-reasoning"
+                      type="button"
+                      size="xs"
+                      variant={debaterA.reasoningEnabled ? "default" : "outline"}
+                      onClick={() =>
+                        setDebaterA((prev) =>
+                          aReasoningToggleable
+                            ? { ...prev, reasoningEnabled: !prev.reasoningEnabled }
+                            : { ...prev, reasoningEnabled: false },
+                        )
+                      }
+                      disabled={!aReasoningToggleable}
+                    >
+                      {debaterA.reasoningEnabled ? "On" : "Off"}
+                    </Button>
+                  </div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
+                    {getReasoningHelperText(selectedModelA)}
+                  </p>
                 </div>
 
                 <div className="space-y-1">
@@ -496,21 +595,53 @@ function SetupPage() {
 
                 <div className="space-y-1">
                   <Label htmlFor="b-model">Model</Label>
-                  <Select
+                  <ModelPicker
+                    id="b-model"
+                    label="Choose Side B Model"
                     value={debaterB.model}
-                    onValueChange={(value) => setDebaterB((prev) => ({ ...prev, model: value }))}
-                  >
-                    <SelectTrigger id="b-model">
-                      <SelectValue placeholder="Choose model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CONFIG.DEFAULT_MODELS.map((model) => (
-                        <SelectItem key={model.id} value={model.id}>
-                          {model.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    models={modelCatalog}
+                    isLoading={isModelCatalogLoading}
+                    loadError={modelCatalogError}
+                    onValueChange={(value) =>
+                      setDebaterB((prev) => {
+                        const selected = findModelById(modelCatalog, value);
+                        return {
+                          ...prev,
+                          model: value,
+                          reasoningToggleable: selected?.reasoningToggleable ?? false,
+                          reasoningEnabled:
+                            selected?.reasoningToggleable
+                              ? prev.reasoningEnabled ?? false
+                              : false,
+                        };
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2 border border-foreground/10 p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <Label htmlFor="b-reasoning">Reasoning</Label>
+                    <Button
+                      id="b-reasoning"
+                      type="button"
+                      size="xs"
+                      variant={debaterB.reasoningEnabled ? "default" : "outline"}
+                      onClick={() =>
+                        setDebaterB((prev) =>
+                          bReasoningToggleable
+                            ? { ...prev, reasoningEnabled: !prev.reasoningEnabled }
+                            : { ...prev, reasoningEnabled: false },
+                        )
+                      }
+                      disabled={!bReasoningToggleable}
+                    >
+                      {debaterB.reasoningEnabled ? "On" : "Off"}
+                    </Button>
+                  </div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
+                    {getReasoningHelperText(selectedModelB)}
+                  </p>
                 </div>
 
                 <div className="space-y-1">

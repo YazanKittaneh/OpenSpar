@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseReasoningChunk } from "./llm";
+import { buildOpenRouterChatCompletionRequest, buildMessages, parseReasoningChunk } from "./llm";
 
 function collectParsed(chunks: string[]) {
   const state = { activeTag: null as "reasoning" | "rationale_summary" | null, remainder: "" };
@@ -68,5 +68,56 @@ describe("parseReasoningChunk", () => {
 
     expect(visible).toBe("AB");
     expect(hiddenRationaleSummary).toBe("because X");
+  });
+});
+
+describe("buildOpenRouterChatCompletionRequest", () => {
+  const messages = buildMessages(
+    "A",
+    { model: "openai/gpt-4", name: "A" },
+    "Test topic",
+    [],
+  );
+
+  it("includes reasoning params when toggleable and enabled", () => {
+    const request = buildOpenRouterChatCompletionRequest(
+      {
+        model: "openai/gpt-5.3-codex",
+        name: "Codex",
+        reasoningEnabled: true,
+        reasoningToggleable: true,
+      },
+      messages,
+    );
+
+    expect(request.reasoning).toEqual({ enabled: true });
+  });
+
+  it("includes reasoning=false when toggleable and disabled", () => {
+    const request = buildOpenRouterChatCompletionRequest(
+      {
+        model: "openai/gpt-5.3-codex",
+        name: "Codex",
+        reasoningEnabled: false,
+        reasoningToggleable: true,
+      },
+      messages,
+    );
+
+    expect(request.reasoning).toEqual({ enabled: false });
+  });
+
+  it("omits reasoning params when toggle support is not available", () => {
+    const request = buildOpenRouterChatCompletionRequest(
+      {
+        model: "openai/gpt-4",
+        name: "GPT-4",
+        reasoningEnabled: true,
+        reasoningToggleable: false,
+      },
+      messages,
+    );
+
+    expect(request.reasoning).toBeUndefined();
   });
 });

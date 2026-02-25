@@ -14,6 +14,8 @@ export interface DebaterConfig {
   name: string;
   systemPrompt?: string;
   objective?: string;
+  reasoningEnabled?: boolean;
+  reasoningToggleable?: boolean;
 }
 
 export interface Turn {
