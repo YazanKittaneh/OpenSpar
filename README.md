@@ -374,6 +374,16 @@ npx vercel --prod
 - ✅ User controls work
 - ✅ Convex functions run without errors
 
+### 5. Deploy Convex Backend Changes (Required for schema/function updates)
+
+If you changed anything in `convex/` or added/changed backend payload fields used by Convex validators, deploy Convex separately after shipping the frontend:
+
+```bash
+npx convex deploy -y
+```
+
+Without this step, Vercel may serve a newer frontend that sends fields your production Convex schema does not accept yet (which can cause `500` errors on `/api/debates`).
+
 ---
 
 ## 🤝 Contributing
