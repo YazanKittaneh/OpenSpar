@@ -45,7 +45,7 @@ export function ChatColumn({
 
       <div
         ref={scrollRef}
-        className="mt-4 max-h-[72vh] min-h-[440px] overflow-y-auto border border-foreground/10 px-3 py-4"
+        className="mt-4 max-h-[72vh] min-h-[440px] overflow-y-auto border border-border px-3 py-4"
       >
         {sortedTurns.length === 0 && !typingSpeaker ? (
           <div className="px-1 py-8">
@@ -67,7 +67,7 @@ export function ChatColumn({
                   className={`w-full max-w-[90%] border px-3 py-3 ${
                     isModelOne
                       ? "border-[#FF4500]/80 bg-background"
-                      : "border-foreground/10 bg-muted/30"
+                      : "border-border bg-muted/30"
                   }`}
                 >
                   <div className="mb-1 flex items-center justify-between gap-3">
@@ -100,7 +100,7 @@ export function ChatColumn({
                 className={`w-full max-w-[90%] border px-3 py-3 ${
                   typingSpeaker === "A"
                     ? "border-[#FF4500]/80 bg-background"
-                    : "border-foreground/10 bg-muted/30"
+                    : "border-border bg-muted/30"
                 }`}
               >
                 <div className="mb-1 flex items-center justify-between gap-3">

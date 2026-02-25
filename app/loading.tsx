@@ -9,12 +9,12 @@ export default function Loading() {
         </div>
         <div className="swiss-loader mb-4" />
         <div className="space-y-8 mt-12">
-          <div className="h-12 w-64 bg-foreground/5 animate-pulse" />
-          <div className="h-px w-24 bg-foreground/10" />
-          <div className="h-32 w-full bg-foreground/5 animate-pulse" />
+          <div className="h-12 w-64 bg-muted animate-pulse" />
+          <div className="h-px w-24 bg-border" />
+          <div className="h-32 w-full bg-muted animate-pulse" />
           <div className="grid gap-8 lg:grid-cols-2">
-            <div className="h-48 border border-foreground/5 animate-pulse" />
-            <div className="h-48 border border-foreground/5 animate-pulse" />
+            <div className="h-48 border border-muted animate-pulse" />
+            <div className="h-48 border border-muted animate-pulse" />
           </div>
         </div>
       </div>

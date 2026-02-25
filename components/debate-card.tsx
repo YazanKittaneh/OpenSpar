@@ -17,7 +17,7 @@ export function DebateCard({
         "border bg-card p-0 rounded-[2px] transition-none",
         isCurrentSpeaker
           ? "border-[#FF4500] border-l-2"
-          : "border-foreground/10",
+          : "border-border",
       ].join(" ")}
     >
       {/* Header */}

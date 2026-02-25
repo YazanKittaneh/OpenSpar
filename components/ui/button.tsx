@@ -12,7 +12,7 @@ const buttonVariants = cva(
         default: "bg-foreground text-background hover:bg-[#FF4500] hover:text-white",
         destructive: "bg-[#FF4500] text-white hover:bg-foreground hover:text-background",
         outline: "border border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background",
-        secondary: "border border-foreground/10 bg-transparent text-foreground hover:border-foreground",
+        secondary: "border border-border bg-transparent text-foreground hover:border-foreground",
         ghost: "bg-transparent text-foreground hover:bg-foreground hover:text-background",
         link: "text-foreground underline-offset-4 hover:underline uppercase tracking-[0.05em] font-mono text-xs",
       },

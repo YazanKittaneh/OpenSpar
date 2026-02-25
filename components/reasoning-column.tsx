@@ -52,7 +52,7 @@ export function ReasoningColumn({
 
       <div
         ref={scrollRef}
-        className="mt-4 max-h-[72vh] min-h-[440px] overflow-y-auto border border-foreground/10"
+        className="mt-4 max-h-[72vh] min-h-[440px] overflow-y-auto border border-border"
       >
         {speakerTurns.length === 0 ? (
           <div className="px-4 py-8">
@@ -66,7 +66,7 @@ export function ReasoningColumn({
               key={`${turn.number}-${speaker}`}
               className={`px-4 py-3 ${
                 index < speakerTurns.length - 1
-                  ? "border-b border-foreground/10"
+                  ? "border-b border-border"
                   : ""
               }`}
             >
@@ -92,7 +92,7 @@ export function ReasoningColumn({
         )}
 
         {typingSpeaker === speaker ? (
-          <div className="border-t border-foreground/10 px-4 py-3 animate-fade-in">
+          <div className="border-t border-border px-4 py-3 animate-fade-in">
             <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-[#FF4500]">
               [PROCESSING_REASONING]
             </span>

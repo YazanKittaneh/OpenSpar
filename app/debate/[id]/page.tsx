@@ -236,7 +236,16 @@ function DebatePageContent() {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to send action");
+          let message = "Failed to send action";
+          try {
+            const data = (await response.json()) as { error?: unknown };
+            if (typeof data.error === "string" && data.error.trim()) {
+              message = data.error;
+            }
+          } catch {
+            // Ignore non-JSON error bodies and fall back to generic message.
+          }
+          throw new Error(message);
         }
 
         if (action.type === "pause") {
@@ -251,12 +260,18 @@ function DebatePageContent() {
           setStreamingContent({ A: "", B: "" });
         }
       } catch (error) {
-        setQueuedActions((prev) => [...prev, action]);
-        setErrorBanner(
-          error instanceof Error
-            ? `${error.message}. Action queued for retry.`
-            : "Action queued for retry.",
-        );
+        const isNetworkError = error instanceof TypeError;
+
+        if (isNetworkError) {
+          setQueuedActions((prev) => [...prev, action]);
+          setErrorBanner(
+            error instanceof Error
+              ? `${error.message}. Action queued for retry.`
+              : "Action queued for retry.",
+          );
+        } else {
+          setErrorBanner(error instanceof Error ? error.message : "Failed to send action");
+        }
       } finally {
         setIsActionLoading(false);
       }
@@ -334,7 +349,7 @@ function DebatePageContent() {
       "h-9 border px-3 font-mono text-[10px] uppercase tracking-[0.05em]",
       mobileTab === tab
         ? "border-[#FF4500] text-[#FF4500]"
-        : "border-foreground/10 text-muted-foreground",
+        : "border-border text-muted-foreground",
     ].join(" ");
 
   return (
@@ -343,7 +358,7 @@ function DebatePageContent() {
         <div className="swiss-loader" />
       ) : null}
 
-      <header className="sticky top-0 z-20 border-b border-foreground/10 bg-background">
+      <header className="sticky top-0 z-20 border-b border-border bg-background">
         <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div className="mb-1 flex items-center gap-3">
@@ -400,7 +415,7 @@ function DebatePageContent() {
         ) : null}
 
         <div className="space-y-4 lg:hidden">
-          <div className="grid grid-cols-3 gap-2 border border-foreground/10 p-2">
+          <div className="grid grid-cols-3 gap-2 border border-border p-2">
             <button
               type="button"
               className={mobileTabButtonClass("chat")}

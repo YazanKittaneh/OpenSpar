@@ -73,7 +73,7 @@ function ModelRow({
       type="button"
       onClick={() => onSelect(model.id)}
       className={cn(
-        "w-full border border-transparent px-3 py-3 text-left transition-none hover:border-foreground/20 hover:bg-foreground hover:text-background",
+        "w-full border border-transparent px-3 py-3 text-left transition-none hover:border-border hover:bg-foreground hover:text-background",
         selected && "border-[#FF4500] bg-[#FF4500]/5",
       )}
     >
@@ -106,13 +106,13 @@ function ModelRow({
         </div>
         <div className="flex flex-wrap justify-start gap-1 md:justify-end">
           {model.reasoningCapable ? (
-            <Badge variant="outline" className="border-foreground/20 text-[10px]">
+            <Badge variant="outline" className="border-border text-[10px]">
               <Sparkles className="size-3" />
               Reasoning
             </Badge>
           ) : null}
           {model.reasoningToggleable ? (
-            <Badge variant="outline" className="border-foreground/20 text-[10px]">
+            <Badge variant="outline" className="border-border text-[10px]">
               Toggle
             </Badge>
           ) : null}
@@ -189,20 +189,20 @@ export function ModelPicker({
               {selectedModel.id}
             </p>
           </div>
-          <Search className="size-4 shrink-0 opacity-50" />
+          <Search className="size-4 shrink-0 opacity-60" />
         </div>
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl p-0 gap-0">
-          <DialogHeader className="border-b border-foreground/10 p-6 pb-4">
+          <DialogHeader className="border-b border-border p-6 pb-4">
             <DialogTitle>{label}</DialogTitle>
             <DialogDescription>
               Search curated defaults or the live OpenRouter model catalog.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="border-b border-foreground/10 px-6 py-4">
+          <div className="border-b border-border px-6 py-4">
             <Input
               autoFocus
               value={query}

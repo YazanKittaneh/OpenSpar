@@ -30,7 +30,7 @@ export function DebateLog({ turns, getDebaterName }: DebateLogProps) {
       {/* Scrollable transcript area: flat, no rounded corners */}
       <div
         ref={scrollRef}
-        className="max-h-[480px] overflow-y-auto border border-foreground/10 rounded-none"
+        className="max-h-[480px] overflow-y-auto border border-border rounded-none"
       >
         {turns.length === 0 ? (
           <div className="px-4 py-8">
@@ -44,7 +44,7 @@ export function DebateLog({ turns, getDebaterName }: DebateLogProps) {
               key={`${turn.number}-${turn.speaker}`}
               className={`px-4 py-3 ${
                 index < turns.length - 1
-                  ? "border-b border-foreground/10"
+                  ? "border-b border-border"
                   : ""
               }`}
             >

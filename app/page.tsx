@@ -322,11 +322,11 @@ function SetupPage() {
             <div className="mb-8 flex items-center gap-3">
               <span className="font-mono text-[10px] text-[#FF4500] tracking-[0.08em]">00</span>
               <span className="font-mono text-[11px] uppercase tracking-[0.05em] text-muted-foreground">Account + Key</span>
-              <div className="h-px flex-1 bg-foreground/10" />
+              <div className="h-px flex-1 bg-border" />
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-2 border border-foreground/10 p-4">
+              <div className="space-y-2 border border-border p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
                   Account [optional]
                 </p>
@@ -429,7 +429,7 @@ function SetupPage() {
                 ) : null}
               </div>
 
-              <div className="space-y-2 border border-foreground/10 p-4">
+              <div className="space-y-2 border border-border p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
                   OpenRouter Key
                 </p>
@@ -469,13 +469,13 @@ function SetupPage() {
             <div className="mb-6 flex items-center gap-3">
               <span className="font-mono text-[10px] text-[#FF4500] tracking-[0.08em]">01</span>
               <span className="font-mono text-[11px] uppercase tracking-[0.05em] text-muted-foreground">Topic</span>
-              <div className="h-px flex-1 bg-foreground/10" />
+              <div className="h-px flex-1 bg-border" />
             </div>
             <Textarea
               value={topic}
               onChange={(event) => setTopic(event.target.value)}
               placeholder="Should frontier AI labs be regulated like critical infrastructure?"
-              className="min-h-28 text-lg border-foreground/10"
+              className="min-h-28 text-lg border-border"
             />
             {topicError && topic.length > 0 ? (
               <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.05em] text-[#FF4500]">
@@ -489,17 +489,17 @@ function SetupPage() {
             <div className="mb-8 flex items-center gap-3">
               <span className="font-mono text-[10px] text-[#FF4500] tracking-[0.08em]">02</span>
               <span className="font-mono text-[11px] uppercase tracking-[0.05em] text-muted-foreground">Combatants</span>
-              <div className="h-px flex-1 bg-foreground/10" />
+              <div className="h-px flex-1 bg-border" />
             </div>
 
             <div className="grid gap-8 lg:grid-cols-[1fr_auto_1fr]">
               {/* Debater A */}
-              <div className="space-y-6 border border-foreground/10 p-6">
+              <div className="space-y-6 border border-border p-6">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs uppercase tracking-[0.05em] text-foreground font-bold">
                     Side A
                   </span>
-                  <Badge variant="outline" className="border-foreground/20 text-muted-foreground">
+                  <Badge variant="outline" className="border-border text-muted-foreground">
                     {debaterA.model.split("/").pop()}
                   </Badge>
                 </div>
@@ -530,7 +530,7 @@ function SetupPage() {
                   />
                 </div>
 
-                <div className="space-y-2 border border-foreground/10 p-3">
+                <div className="space-y-2 border border-border p-3">
                   <div className="flex items-center justify-between gap-3">
                     <Label htmlFor="a-reasoning">Reasoning</Label>
                     <Button
@@ -577,18 +577,18 @@ function SetupPage() {
 
               {/* VS Divider */}
               <div className="flex items-center justify-center lg:flex-col lg:py-16">
-                <div className="h-px w-8 bg-foreground/10 lg:h-8 lg:w-px" />
+                <div className="h-px w-8 bg-border lg:h-8 lg:w-px" />
                 <span className="mx-3 font-mono text-xs font-bold text-[#FF4500] lg:my-3">VS</span>
-                <div className="h-px w-8 bg-foreground/10 lg:h-8 lg:w-px" />
+                <div className="h-px w-8 bg-border lg:h-8 lg:w-px" />
               </div>
 
               {/* Debater B */}
-              <div className="space-y-6 border border-foreground/10 p-6">
+              <div className="space-y-6 border border-border p-6">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs uppercase tracking-[0.05em] text-foreground font-bold">
                     Side B
                   </span>
-                  <Badge variant="outline" className="border-foreground/20 text-muted-foreground">
+                  <Badge variant="outline" className="border-border text-muted-foreground">
                     {debaterB.model.split("/").pop()}
                   </Badge>
                 </div>
@@ -619,7 +619,7 @@ function SetupPage() {
                   />
                 </div>
 
-                <div className="space-y-2 border border-foreground/10 p-3">
+                <div className="space-y-2 border border-border p-3">
                   <div className="flex items-center justify-between gap-3">
                     <Label htmlFor="b-reasoning">Reasoning</Label>
                     <Button
@@ -671,7 +671,7 @@ function SetupPage() {
             <div className="mb-8 flex items-center gap-3">
               <span className="font-mono text-[10px] text-[#FF4500] tracking-[0.08em]">03</span>
               <span className="font-mono text-[11px] uppercase tracking-[0.05em] text-muted-foreground">Parameters</span>
-              <div className="h-px flex-1 bg-foreground/10" />
+              <div className="h-px flex-1 bg-border" />
             </div>
 
             <div className="grid gap-8 sm:grid-cols-2">

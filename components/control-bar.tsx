@@ -67,7 +67,7 @@ export function ControlBar({
         size="sm"
         onClick={() => void onStop()}
         disabled={disabled}
-        className="font-mono border-[#FF4500]/60 text-[#FF4500] hover:bg-[#FF4500]/10 hover:text-[#FF4500]"
+        className="font-mono border-[#FF4500] text-[#FF4500] hover:bg-[#FF4500] hover:text-white"
       >
         <Square className="h-4 w-4 sm:mr-1" />
         <span className="hidden sm:inline">STOP</span>
