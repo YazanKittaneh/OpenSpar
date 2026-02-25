@@ -25,6 +25,40 @@ type ModelPickerProps = {
   loadError?: string | null;
 };
 
+function formatContextLength(contextLength?: number) {
+  if (!contextLength || contextLength <= 0) return "--";
+  if (contextLength >= 1_000_000) {
+    return `${(contextLength / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  }
+  if (contextLength >= 1_000) {
+    return `${(contextLength / 1_000).toFixed(0)}K`;
+  }
+  return String(contextLength);
+}
+
+function formatPricePer1M(pricing?: ModelCatalogEntry["pricing"]) {
+  if (!pricing?.prompt && !pricing?.completion) return "--";
+
+  const formatSide = (value?: number) =>
+    value === undefined ? "--" : `$${(value * 1_000_000).toFixed(2)}`;
+
+  const prompt = formatSide(pricing.prompt);
+  const completion = formatSide(pricing.completion);
+  return `${prompt}/${completion}`;
+}
+
+function SectionColumns() {
+  return (
+    <div className="mb-1 hidden md:grid md:grid-cols-[minmax(0,1.7fr)_0.8fr_1fr_0.7fr_auto] gap-3 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+      <span>Model</span>
+      <span>Provider</span>
+      <span>Price (P/C, 1M)</span>
+      <span>Context</span>
+      <span className="text-right">Flags</span>
+    </div>
+  );
+}
+
 function ModelRow({
   model,
   selected,
@@ -43,17 +77,34 @@ function ModelRow({
         selected && "border-[#FF4500] bg-[#FF4500]/5",
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-2">
+      <div className="flex flex-col gap-2 md:grid md:grid-cols-[minmax(0,1.7fr)_0.8fr_1fr_0.7fr_auto] md:items-start md:gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{model.name}</p>
           <p className="truncate font-mono text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
             {model.id}
           </p>
+          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 md:hidden">
+            <span className="font-mono text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
+              Prov {model.provider}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
+              Price {formatPricePer1M(model.pricing)}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.04em] text-muted-foreground">
+              Ctx {formatContextLength(model.contextLength)}
+            </span>
+          </div>
         </div>
-        <div className="flex flex-wrap justify-end gap-1">
-          <Badge variant="outline" className="border-foreground/20 text-[10px]">
-            {model.provider}
-          </Badge>
+        <div className="hidden md:block font-mono text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+          {model.provider}
+        </div>
+        <div className="hidden md:block font-mono text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+          {formatPricePer1M(model.pricing)}
+        </div>
+        <div className="hidden md:block font-mono text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
+          {formatContextLength(model.contextLength)}
+        </div>
+        <div className="flex flex-wrap justify-start gap-1 md:justify-end">
           {model.reasoningCapable ? (
             <Badge variant="outline" className="border-foreground/20 text-[10px]">
               <Sparkles className="size-3" />
@@ -175,6 +226,7 @@ export function ModelPicker({
                 <p className="px-3 py-2 font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
                   Curated
                 </p>
+                <SectionColumns />
                 <div className="space-y-1">
                   {groups.curated.map((model) => (
                     <ModelRow
@@ -193,6 +245,7 @@ export function ModelPicker({
                 <p className="px-3 py-2 font-mono text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
                   All OpenRouter Models
                 </p>
+                <SectionColumns />
                 <div className="space-y-1">
                   {groups.openrouter.map((model) => (
                     <ModelRow
@@ -219,4 +272,3 @@ export function ModelPicker({
     </>
   );
 }
-

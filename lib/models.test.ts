@@ -13,6 +13,8 @@ describe("normalizeOpenRouterModel", () => {
       id: "openai/gpt-5.3-codex",
       name: "OpenAI: GPT-5.3-Codex",
       supported_parameters: ["max_tokens", "reasoning", "include_reasoning"],
+      context_length: 400000,
+      pricing: { prompt: "0.00000175", completion: "0.000014" },
     });
 
     expect(model).toMatchObject({
@@ -21,8 +23,13 @@ describe("normalizeOpenRouterModel", () => {
       source: "openrouter",
       reasoningCapable: true,
       reasoningToggleable: true,
+      contextLength: 400000,
     });
     expect(model?.supportedParameters).toContain("reasoning");
+    expect(model?.pricing).toEqual({
+      prompt: 0.00000175,
+      completion: 0.000014,
+    });
   });
 
   it("drops malformed rows", () => {
@@ -53,6 +60,8 @@ describe("mergeModelCatalogs", () => {
         source: "openrouter" as const,
         reasoningCapable: true,
         reasoningToggleable: true,
+        contextLength: 128000,
+        pricing: { prompt: 0.0000025, completion: 0.00001 },
       },
       {
         id: "openai/gpt-5.3-codex",
@@ -70,6 +79,8 @@ describe("mergeModelCatalogs", () => {
 
     expect(gpt4?.name).toBe("GPT-4");
     expect(gpt4?.source).toBe("curated");
+    expect(gpt4?.contextLength).toBe(128000);
+    expect(gpt4?.pricing).toEqual({ prompt: 0.0000025, completion: 0.00001 });
     expect(codex?.source).toBe("openrouter");
   });
 });

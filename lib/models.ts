@@ -10,12 +10,20 @@ export interface ModelCatalogEntry {
   reasoningCapable: boolean;
   reasoningToggleable: boolean;
   supportedParameters?: string[];
+  contextLength?: number;
+  pricing?: {
+    prompt?: number;
+    completion?: number;
+  };
 }
 
 interface OpenRouterModelRow {
   id?: unknown;
   name?: unknown;
   supported_parameters?: unknown;
+  context_length?: unknown;
+  pricing?: unknown;
+  top_provider?: unknown;
 }
 
 interface OpenRouterModelsPayload {
@@ -60,6 +68,26 @@ function sanitizeSupportedParameters(value: unknown): string[] {
     .filter(Boolean);
 }
 
+function sanitizeOptionalNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return undefined;
+}
+
+function sanitizePricing(
+  value: unknown,
+): ModelCatalogEntry["pricing"] | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const row = value as Record<string, unknown>;
+  const prompt = sanitizeOptionalNumber(row.prompt);
+  const completion = sanitizeOptionalNumber(row.completion);
+  if (prompt === undefined && completion === undefined) return undefined;
+  return { prompt, completion };
+}
+
 export function inferReasoningCapabilityFromName(id: string, name: string) {
   const haystack = `${id} ${name}`;
   return REASONING_NAME_HINTS.some((pattern) => pattern.test(haystack));
@@ -73,6 +101,13 @@ export function normalizeOpenRouterModel(row: OpenRouterModelRow): ModelCatalogE
   const supportsReasoningParam =
     supportedParameters.includes("reasoning") ||
     supportedParameters.includes("include_reasoning");
+  const contextLength =
+    sanitizeOptionalNumber(row.context_length) ||
+    (row.top_provider &&
+    typeof row.top_provider === "object"
+      ? sanitizeOptionalNumber((row.top_provider as Record<string, unknown>).context_length)
+      : undefined);
+  const pricing = sanitizePricing(row.pricing);
 
   return {
     id,
@@ -83,6 +118,8 @@ export function normalizeOpenRouterModel(row: OpenRouterModelRow): ModelCatalogE
       supportsReasoningParam || inferReasoningCapabilityFromName(id, name),
     reasoningToggleable: supportsReasoningParam,
     supportedParameters: supportedParameters.length > 0 ? supportedParameters : undefined,
+    contextLength,
+    pricing,
   };
 }
 
@@ -113,7 +150,22 @@ export function mergeModelCatalogs(
   }
 
   for (const model of curated) {
-    byId.set(model.id, model);
+    const fetchedMatch = byId.get(model.id);
+    if (!fetchedMatch) {
+      byId.set(model.id, model);
+      continue;
+    }
+
+    byId.set(model.id, {
+      ...fetchedMatch,
+      ...model,
+      source: "curated",
+      reasoningCapable: fetchedMatch.reasoningCapable ?? model.reasoningCapable,
+      reasoningToggleable: fetchedMatch.reasoningToggleable ?? model.reasoningToggleable,
+      supportedParameters: fetchedMatch.supportedParameters ?? model.supportedParameters,
+      contextLength: fetchedMatch.contextLength ?? model.contextLength,
+      pricing: fetchedMatch.pricing ?? model.pricing,
+    });
   }
 
   const merged = Array.from(byId.values());
