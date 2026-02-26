@@ -2,7 +2,7 @@
 
 <!-- BANNER - Replace with your own banner image -->
 <a href="https://openspar.vercel.app">
-  <img src="public/banner.png" alt="OpenSpar - AI Model Analysis Platform" width="100%">
+  <img width="2232" height="780" alt="CleanShot 2026-02-26 at 14 54 09@2x" src="https://github.com/user-attachments/assets/4286b4b7-98cc-46b9-9122-c5839c4f0071" />
 </a>
 
 <h3>🔬 Compare, Analyze & Synthesize with Multiple AI Models</h3>
@@ -13,6 +13,7 @@
   <a href="https://convex.dev"><img src="https://img.shields.io/badge/Convex-Real--time-orange?style=for-the-badge" alt="Convex"></a>
   <a href="https://openrouter.ai"><img src="https://img.shields.io/badge/OpenRouter-AI_Models-10b981?style=for-the-badge" alt="OpenRouter"></a>
 </p>
+
 
 <p>
   <a href="#-quick-start"><img src="https://img.shields.io/badge/Get_Started-→-FF4500?style=for-the-badge" alt="Get Started"></a>
